@@ -1,0 +1,3139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#263238">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <link rel="manifest" href="./manifest.json">
+    <link rel="icon" type="image/png" href="./icons/icon-192.png">
+
+    <title>♟️ Chess Class Tracker</title>
+
+    <!-- Bootstrap 5 -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <style>
+        /* =====================================================
+           GLOBAL
+        ===================================================== */
+
+        :root {
+            --chess-dark: #263238;
+            --chess-green: #198754;
+            --chess-gold: #ffc107;
+            --page-bg: #f4f7f9;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--page-bg);
+            color: #263238;
+            font-family:
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .app-shell {
+            min-height: 100vh;
+        }
+
+        body.loading {
+            overflow: hidden;
+        }
+
+        #appLoader {
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(244, 247, 249, 0.96);
+            backdrop-filter: blur(2px);
+        }
+
+        .loader-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: white;
+            border-radius: 18px;
+            padding: 18px 22px;
+            box-shadow: 0 14px 32px rgba(38, 50, 56, 0.12);
+        }
+
+        .loader-spinner {
+            width: 28px;
+            height: 28px;
+            border: 3px solid rgba(25, 135, 84, 0.2);
+            border-top-color: #198754;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* =====================================================
+           TOP BAR
+        ===================================================== */
+
+        .topbar {
+            background: linear-gradient(
+                135deg,
+                #263238,
+                #37474f
+            );
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+            box-shadow: 0 3px 12px rgba(0,0,0,.15);
+        }
+
+        .topbar-inner {
+            min-height: 68px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            text-decoration: none;
+            font-weight: 800;
+        }
+
+        .brand-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,.12);
+            font-size: 25px;
+        }
+
+        .brand-text {
+            line-height: 1.1;
+        }
+
+        .brand-title {
+            font-size: 17px;
+        }
+
+        .brand-subtitle {
+            font-size: 11px;
+            opacity: .65;
+            font-weight: 500;
+        }
+
+        .install-btn {
+            white-space: nowrap;
+            border-width: 1.5px;
+            font-weight: 700;
+            padding: 0.5rem 0.9rem;
+            border-radius: 12px;
+        }
+
+
+        /* =====================================================
+           DESKTOP NAV
+        ===================================================== */
+
+        .desktop-nav {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .desktop-nav .nav-link {
+            color: #455a64;
+            font-weight: 600;
+            padding: 14px 18px;
+            border-bottom: 3px solid transparent;
+        }
+
+        .desktop-nav .nav-link:hover,
+        .desktop-nav .nav-link.active {
+            color: var(--chess-green);
+            border-bottom-color: var(--chess-green);
+            background: #f8faf9;
+        }
+
+
+        /* =====================================================
+           MAIN
+        ===================================================== */
+
+        main {
+            padding: 24px 0 90px;
+        }
+
+        .app-view {
+            animation: fadeIn .2s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+
+        /* =====================================================
+           PAGE HEADER
+        ===================================================== */
+
+        .page-header {
+            margin-bottom: 20px;
+        }
+
+        .page-title {
+            font-size: 25px;
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .page-subtitle {
+            color: #78909c;
+            margin: 5px 0 0;
+            font-size: 14px;
+        }
+
+
+        /* =====================================================
+           CARDS
+        ===================================================== */
+
+        .app-card {
+            background: white;
+            border: 0;
+            border-radius: 18px;
+            box-shadow:
+                0 5px 20px rgba(38,50,56,.07);
+            overflow: hidden;
+        }
+
+        .app-card-header {
+            padding: 17px 20px;
+            border-bottom: 1px solid #edf0f2;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .app-card-title {
+            font-size: 16px;
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .app-card-body {
+            padding: 20px;
+        }
+
+
+        /* =====================================================
+           STUDENT HERO
+        ===================================================== */
+
+        .student-hero {
+            background:
+                linear-gradient(
+                    135deg,
+                    #263238 0%,
+                    #455a64 65%,
+                    #546e7a 100%
+                );
+            color: white;
+            border-radius: 20px;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .student-hero::after {
+            content: "♟";
+            position: absolute;
+            right: 20px;
+            bottom: -25px;
+            font-size: 130px;
+            opacity: .08;
+        }
+
+        .student-name {
+            font-size: 29px;
+            font-weight: 850;
+            margin: 0;
+        }
+
+        .course-date {
+            font-size: 13px;
+            opacity: .72;
+            margin-top: 6px;
+        }
+
+        .student-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .meta-chip {
+            background: rgba(255,255,255,.12);
+            padding: 7px 11px;
+            border-radius: 999px;
+            font-size: 12px;
+        }
+
+
+        /* =====================================================
+           STAT CARDS
+        ===================================================== */
+
+        .stat-card {
+            background: white;
+            border-radius: 17px;
+            padding: 18px;
+            height: 100%;
+            box-shadow:
+                0 4px 16px rgba(38,50,56,.06);
+            border: 1px solid #edf0f2;
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f1f5f3;
+            font-size: 19px;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #78909c;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .stat-value {
+            font-size: 27px;
+            font-weight: 850;
+            margin-top: 2px;
+        }
+
+
+        /* =====================================================
+           PROGRESS
+        ===================================================== */
+
+        .progress {
+            height: 12px;
+            border-radius: 99px;
+            background: #e9eef0;
+        }
+
+        .progress-bar {
+            border-radius: 99px;
+            transition: width .4s ease;
+        }
+
+
+        /* =====================================================
+           WEEK CARD
+        ===================================================== */
+
+        .week-card {
+            background: linear-gradient(
+                135deg,
+                #fffdf2,
+                #ffffff
+            );
+            border: 1px solid #f6e7a9;
+            border-radius: 18px;
+            padding: 20px;
+        }
+
+        .week-number {
+            font-size: 25px;
+            font-weight: 850;
+        }
+
+        .week-stats {
+            display: grid;
+            grid-template-columns:
+                repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .week-stat {
+            text-align: center;
+            padding: 12px 6px;
+            border-radius: 13px;
+            background: #fff;
+            border: 1px solid #eee;
+        }
+
+        .week-stat strong {
+            display: block;
+            font-size: 22px;
+        }
+
+        .week-stat small {
+            color: #78909c;
+            font-size: 11px;
+        }
+
+
+        /* =====================================================
+           RECOVERY
+        ===================================================== */
+
+        #recoveryBox {
+            border-radius: 15px;
+            margin-bottom: 0;
+        }
+
+
+        /* =====================================================
+           BUTTONS
+        ===================================================== */
+
+        .btn {
+            border-radius: 11px;
+            font-weight: 650;
+        }
+
+        .btn-primary {
+            background: #198754;
+            border-color: #198754;
+        }
+
+        .btn-primary:hover {
+            background: #157347;
+            border-color: #157347;
+        }
+
+        .quick-add {
+            min-width: 150px;
+        }
+
+
+        /* =====================================================
+           CALENDAR
+        ===================================================== */
+
+        .calendar-wrapper {
+            background: white;
+            border-radius: 18px;
+            box-shadow:
+                0 5px 20px rgba(38,50,56,.07);
+            overflow: hidden;
+        }
+
+        .calendar-toolbar {
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #edf0f2;
+        }
+
+        .month-title {
+            font-size: 20px;
+            font-weight: 850;
+            margin: 0;
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 6px;
+        }
+
+        .calendar-nav button {
+            width: 38px;
+            height: 38px;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            background: white;
+        }
+
+        .calendar-nav button:hover {
+            background: #f1f5f3;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(7, 1fr);
+            gap: 5px;
+            padding: 10px;
+        }
+
+        .calendar-weekday {
+            text-align: center;
+            font-size: 11px;
+            font-weight: 800;
+            color: #78909c;
+            padding: 8px 2px;
+        }
+
+        .calendar-day {
+            position: relative;
+            min-height: 92px;
+            border: 1px solid #edf0f2;
+            border-radius: 12px;
+            background: white;
+            padding: 8px;
+            text-align: left;
+            transition: .15s ease;
+            overflow: hidden;
+        }
+
+        .calendar-day:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow:
+                0 5px 14px rgba(0,0,0,.08);
+        }
+
+        .calendar-day.empty {
+            background: transparent;
+            border: 0;
+            box-shadow: none;
+        }
+
+        .calendar-day:disabled {
+            cursor: default;
+            opacity: .45;
+        }
+
+        .calendar-day.outside-course {
+            background: #f8f9fa;
+        }
+
+        .calendar-day.today {
+            border: 2px solid #ffc107;
+        }
+
+        .calendar-day.completed {
+            background: #edf9f1;
+            border-color: #b9e3c7;
+        }
+
+        .calendar-day.missed {
+            background: #fff0f0;
+            border-color: #f3b8b8;
+        }
+
+        .day-number {
+            font-size: 14px;
+            font-weight: 850;
+        }
+
+        .day-status {
+            display: inline-block;
+            margin-top: 9px;
+            padding: 4px 6px;
+            border-radius: 7px;
+            font-size: 9px;
+            font-weight: 800;
+        }
+
+        .day-status.success {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .day-status.danger {
+            background: #f8d7da;
+            color: #842029;
+        }
+
+        .day-status.recovery {
+            background: #fff3cd;
+            color: #664d03;
+        }
+
+
+        /* =====================================================
+           MONTH SUMMARY
+        ===================================================== */
+
+        .summary-box {
+            border: 1px solid #edf0f2;
+            border-radius: 13px;
+            padding: 12px;
+            text-align: center;
+            background: #fafbfb;
+        }
+
+        .summary-box small {
+            display: block;
+            color: #78909c;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .summary-box strong {
+            display: block;
+            font-size: 23px;
+            margin-top: 2px;
+        }
+
+        .success-box {
+            background: #f0faf4;
+            border-color: #c8e6d1;
+        }
+
+        .danger-box {
+            background: #fff4f4;
+            border-color: #f1cccc;
+        }
+
+        .warning-box {
+            background: #fffaf0;
+            border-color: #f5e3b0;
+        }
+
+
+        /* =====================================================
+           HISTORY
+        ===================================================== */
+
+        .history-item {
+            display: grid;
+            grid-template-columns:
+                150px 1fr auto;
+            gap: 15px;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #edf0f2;
+        }
+
+        .history-item:last-child {
+            border-bottom: 0;
+        }
+
+        .history-date strong {
+            display: block;
+            font-size: 14px;
+        }
+
+        .history-date small {
+            display: block;
+            color: #78909c;
+            margin-top: 3px;
+        }
+
+        .history-info {
+            min-width: 0;
+        }
+
+        .history-duration {
+            margin-left: 8px;
+            color: #607d8b;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .history-note {
+            color: #607d8b;
+            font-size: 12px;
+            margin-top: 6px;
+            word-break: break-word;
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+
+        /* =====================================================
+           FORMS
+        ===================================================== */
+
+        .form-label {
+            font-size: 12px;
+            font-weight: 750;
+            color: #455a64;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 11px;
+            min-height: 44px;
+            border-color: #dfe5e8;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #6fae91;
+            box-shadow:
+                0 0 0 .2rem rgba(25,135,84,.12);
+        }
+
+
+        /* =====================================================
+           MODAL
+        ===================================================== */
+
+        .modal-content {
+            border: 0;
+            border-radius: 18px;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            background: #263238;
+            color: white;
+        }
+
+        .modal-title {
+            font-weight: 800;
+        }
+
+
+        /* =====================================================
+           SETTINGS
+        ===================================================== */
+
+        .danger-zone {
+            border: 1px solid #f1c5c5;
+            background: #fff8f8;
+            border-radius: 15px;
+            padding: 18px;
+        }
+
+
+        /* =====================================================
+           MOBILE BOTTOM NAV
+        ===================================================== */
+
+        .mobile-bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 66px;
+            background: rgba(255,255,255,.97);
+            border-top: 1px solid #e5e7eb;
+            z-index: 1040;
+            box-shadow: 0 -3px 15px rgba(0,0,0,.08);
+        }
+
+        .mobile-bottom-nav-inner {
+            height: 100%;
+            display: grid;
+            grid-template-columns:
+                repeat(4, 1fr);
+        }
+
+        .mobile-nav-btn {
+            border: 0;
+            background: transparent;
+            color: #78909c;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .mobile-nav-btn span {
+            display: block;
+            font-size: 21px;
+            margin-bottom: 2px;
+        }
+
+        .mobile-nav-btn.active {
+            color: #198754;
+        }
+
+
+        /* =====================================================
+           RESPONSIVE
+        ===================================================== */
+
+        @media (max-width: 767.98px) {
+
+            main {
+                padding-top: 16px;
+                padding-bottom: 82px;
+            }
+
+            .desktop-nav {
+                display: none;
+            }
+
+            .mobile-bottom-nav {
+                display: block;
+            }
+
+            .brand-title {
+                font-size: 15px;
+            }
+
+            .brand-subtitle {
+                display: none;
+            }
+
+            .student-hero {
+                padding: 20px;
+            }
+
+            .student-name {
+                font-size: 24px;
+            }
+
+            .page-title {
+                font-size: 22px;
+            }
+
+            .calendar-grid {
+                gap: 3px;
+                padding: 6px;
+            }
+
+            .calendar-day {
+                min-height: 67px;
+                padding: 5px;
+                border-radius: 9px;
+            }
+
+            .day-number {
+                font-size: 12px;
+            }
+
+            .day-status {
+                margin-top: 5px;
+                font-size: 7px;
+                padding: 3px 4px;
+            }
+
+            .calendar-weekday {
+                font-size: 9px;
+                padding: 5px 1px;
+            }
+
+            .history-item {
+                grid-template-columns: 1fr auto;
+                gap: 8px;
+            }
+
+            .history-info {
+                grid-column: 1 / -1;
+                grid-row: 2;
+            }
+
+            .history-actions {
+                grid-column: 2;
+                grid-row: 1;
+            }
+
+            .week-stats {
+                gap: 5px;
+            }
+
+            .week-stat {
+                padding: 10px 4px;
+            }
+
+            .week-stat strong {
+                font-size: 19px;
+            }
+
+            .app-card-body {
+                padding: 15px;
+            }
+
+            .quick-add {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 380px) {
+
+            .calendar-day {
+                min-height: 59px;
+            }
+
+            .day-status {
+                display: none;
+            }
+
+            .student-name {
+                font-size: 21px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="app-shell">
+
+    <!-- =====================================================
+         TOP BAR
+    ====================================================== -->
+
+    <header class="topbar">
+
+        <div class="container">
+
+            <div class="topbar-inner">
+
+                <a href="#" class="brand">
+
+                    <div class="brand-icon">
+                        ♟️
+                    </div>
+
+                    <div class="brand-text">
+                        <div class="brand-title">
+                            Chess Class Tracker
+                        </div>
+
+                        <div class="brand-subtitle">
+                            Smart Practice & Attendance
+                        </div>
+                    </div>
+
+                </a>
+
+                <button
+                    type="button"
+                    id="installAppBtn"
+                    class="btn btn-outline-light install-btn d-none"
+                    aria-label="Install app"
+                >
+                    ⬇ Install
+                </button>
+
+                <button
+                    type="button"
+                    id="quickAdd"
+                    class="btn btn-warning quick-add"
+                >
+                    + Add Class
+                </button>
+
+            </div>
+
+        </div>
+
+    </header>
+
+    <div id="appLoader" aria-live="polite" aria-label="Loading chess tracker">
+        <div class="loader-card">
+            <div class="loader-spinner"></div>
+            <div>
+                <div class="fw-bold">Loading Chess Tracker</div>
+                <small class="text-muted">Preparing your class data…</small>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- =====================================================
+         DESKTOP NAV
+    ====================================================== -->
+
+    <nav class="desktop-nav">
+
+        <div class="container">
+
+            <div class="nav nav-pills">
+
+                <button
+                    type="button"
+                    class="nav-link active"
+                    data-view="dashboard"
+                >
+                    🏠 Dashboard
+                </button>
+
+                <button
+                    type="button"
+                    class="nav-link"
+                    data-view="calendar"
+                >
+                    📅 Calendar
+                </button>
+
+                <button
+                    type="button"
+                    class="nav-link"
+                    data-view="history"
+                >
+                    📋 History
+                </button>
+
+                <button
+                    type="button"
+                    class="nav-link"
+                    data-view="settings"
+                >
+                    ⚙️ Settings
+                </button>
+
+            </div>
+
+        </div>
+
+    </nav>
+
+
+    <!-- =====================================================
+         MAIN
+    ====================================================== -->
+
+    <main>
+
+        <div class="container">
+
+
+            <!-- =================================================
+                 DASHBOARD
+            ================================================== -->
+
+            <section
+                id="dashboard"
+                class="app-view"
+            >
+
+                <div class="page-header">
+
+                    <h1 class="page-title">
+                        Chess Progress ♟️
+                    </h1>
+
+                    <p class="page-subtitle">
+                        Track classes, weekly targets and recovery.
+                    </p>
+
+                </div>
+
+
+                <!-- Student Hero -->
+
+                <div class="student-hero mb-4">
+
+                    <h2
+                        id="dashStudent"
+                        class="student-name"
+                    >
+                        Chess Student
+                    </h2>
+
+                    <div
+                        id="dateRange"
+                        class="course-date"
+                    >
+                        -
+                    </div>
+
+                    <div class="student-meta">
+
+                        <span class="meta-chip">
+                            🎯 2 Classes / Week
+                        </span>
+
+                        <span class="meta-chip">
+                            ♟️ Chess Practice
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Statistics -->
+
+                <div class="row g-3 mb-4">
+
+                    <div class="col-6 col-lg-3">
+
+                        <div class="stat-card">
+
+                            <div class="stat-icon">
+                                🎯
+                            </div>
+
+                            <div class="stat-label">
+                                Total Planned
+                            </div>
+
+                            <div
+                                id="totalClasses"
+                                class="stat-value"
+                            >
+                                0
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-6 col-lg-3">
+
+                        <div class="stat-card">
+
+                            <div class="stat-icon">
+                                ✅
+                            </div>
+
+                            <div class="stat-label">
+                                Completed
+                            </div>
+
+                            <div
+                                id="completedClasses"
+                                class="stat-value text-success"
+                            >
+                                0
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-6 col-lg-3">
+
+                        <div class="stat-card">
+
+                            <div class="stat-icon">
+                                ⏳
+                            </div>
+
+                            <div class="stat-label">
+                                Remaining
+                            </div>
+
+                            <div
+                                id="remainingClasses"
+                                class="stat-value text-warning"
+                            >
+                                0
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-6 col-lg-3">
+
+                        <div class="stat-card">
+
+                            <div class="stat-icon">
+                                📈
+                            </div>
+
+                            <div class="stat-label">
+                                Progress
+                            </div>
+
+                            <div
+                                id="progressPct"
+                                class="stat-value"
+                            >
+                                0%
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Overall Progress -->
+
+                <div class="app-card mb-4">
+
+                    <div class="app-card-header">
+
+                        <h3 class="app-card-title">
+                            Overall Progress
+                        </h3>
+
+                        <span class="text-muted small">
+                            Course
+                        </span>
+
+                    </div>
+
+                    <div class="app-card-body">
+
+                        <div class="progress">
+
+                            <div
+                                id="progressBar"
+                                class="progress-bar bg-success"
+                                role="progressbar"
+                                style="width:0%"
+                            ></div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="row g-4">
+
+
+                    <!-- Weekly Progress -->
+
+                    <div class="col-lg-7">
+
+                        <div class="week-card h-100">
+
+                            <div class="d-flex justify-content-between align-items-start">
+
+                                <div>
+
+                                    <div class="text-muted small">
+                                        Current Week
+                                    </div>
+
+                                    <div
+                                        id="weekLabel"
+                                        class="week-number"
+                                    >
+                                        Week 1
+                                    </div>
+
+                                </div>
+
+                                <span class="badge text-bg-success">
+                                    Weekly Target
+                                </span>
+
+                            </div>
+
+
+                            <div class="week-stats">
+
+                                <div class="week-stat">
+
+                                    <strong
+                                        id="weekTarget"
+                                    >
+                                        2
+                                    </strong>
+
+                                    <small>
+                                        Target
+                                    </small>
+
+                                </div>
+
+
+                                <div class="week-stat">
+
+                                    <strong
+                                        id="weekDone"
+                                        class="text-success"
+                                    >
+                                        0
+                                    </strong>
+
+                                    <small>
+                                        Done
+                                    </small>
+
+                                </div>
+
+
+                                <div class="week-stat">
+
+                                    <strong
+                                        id="weekRemaining"
+                                        class="text-warning"
+                                    >
+                                        2
+                                    </strong>
+
+                                    <small>
+                                        Remaining
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Hours -->
+
+                    <div class="col-lg-5">
+
+                        <div class="app-card h-100">
+
+                            <div class="app-card-header">
+
+                                <h3 class="app-card-title">
+                                    ⏱️ Practice Hours
+                                </h3>
+
+                            </div>
+
+                            <div class="app-card-body">
+
+                                <div class="d-flex justify-content-between mb-2">
+
+                                    <span class="text-muted">
+                                        Completed
+                                    </span>
+
+                                    <strong
+                                        id="hoursDone"
+                                        class="text-success"
+                                    >
+                                        0 min
+                                    </strong>
+
+                                </div>
+
+                                <div class="d-flex justify-content-between">
+
+                                    <span class="text-muted">
+                                        Remaining
+                                    </span>
+
+                                    <strong
+                                        id="hoursRemaining"
+                                    >
+                                        0 min
+                                    </strong>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Recovery -->
+
+                <div class="mt-4">
+
+                    <div
+                        id="recoveryBox"
+                        class="alert alert-success"
+                    >
+                        <strong>
+                            ♟ On Track
+                        </strong>
+                        <br>
+                        No recovery classes are currently required.
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 CALENDAR
+            ================================================== -->
+
+            <section
+                id="calendar"
+                class="app-view d-none"
+            >
+
+                <div class="page-header">
+
+                    <h1 class="page-title">
+                        Class Calendar 📅
+                    </h1>
+
+                    <p class="page-subtitle">
+                        Tap any date to add or update a class.
+                    </p>
+
+                </div>
+
+
+                <div class="calendar-wrapper">
+
+                    <div class="calendar-toolbar">
+
+                        <button
+                            type="button"
+                            id="prevMonth"
+                            aria-label="Previous month"
+                        >
+                            ‹
+                        </button>
+
+                        <h2
+                            id="monthTitle"
+                            class="month-title"
+                        >
+                            Month
+                        </h2>
+
+                        <button
+                            type="button"
+                            id="nextMonth"
+                            aria-label="Next month"
+                        >
+                            ›
+                        </button>
+
+                    </div>
+
+
+                    <div class="calendar-grid">
+
+                        <div class="calendar-weekday">
+                            Sun
+                        </div>
+
+                        <div class="calendar-weekday">
+                            Mon
+                        </div>
+
+                        <div class="calendar-weekday">
+                            Tue
+                        </div>
+
+                        <div class="calendar-weekday">
+                            Wed
+                        </div>
+
+                        <div class="calendar-weekday">
+                            Thu
+                        </div>
+
+                        <div class="calendar-weekday">
+                            Fri
+                        </div>
+
+                        <div class="calendar-weekday">
+                            Sat
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        id="calendarGrid"
+                        class="calendar-grid pt-0"
+                    ></div>
+
+
+                    <div
+                        id="monthSummary"
+                        class="p-3 border-top"
+                    ></div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 HISTORY
+            ================================================== -->
+
+            <section
+                id="history"
+                class="app-view d-none"
+            >
+
+                <div class="page-header d-flex justify-content-between align-items-center gap-3">
+
+                    <div>
+
+                        <h1 class="page-title">
+                            Class History 📋
+                        </h1>
+
+                        <p class="page-subtitle">
+                            View, edit or delete previous classes.
+                        </p>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        id="historyAdd"
+                        class="btn btn-success"
+                    >
+                        + Add Class
+                    </button>
+
+                </div>
+
+
+                <div class="app-card">
+
+                    <div class="app-card-body">
+
+                        <div
+                            id="historyList"
+                        ></div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =================================================
+                 SETTINGS
+            ================================================== -->
+
+            <section
+                id="settings"
+                class="app-view d-none"
+            >
+
+                <div class="page-header">
+
+                    <h1 class="page-title">
+                        Settings ⚙️
+                    </h1>
+
+                    <p class="page-subtitle">
+                        Manage student and course details.
+                    </p>
+
+                </div>
+
+
+                <form id="settingsForm">
+
+                    <div class="app-card mb-4">
+
+                        <div class="app-card-header">
+
+                            <h3 class="app-card-title">
+                                Student Details
+                            </h3>
+
+                        </div>
+
+                        <div class="app-card-body">
+
+                            <div class="row g-3">
+
+                                <div class="col-md-6">
+
+                                    <label
+                                        class="form-label"
+                                        for="studentName"
+                                    >
+                                        Student Name
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="studentName"
+                                        class="form-control"
+                                        placeholder="Enter student name"
+                                    >
+
+                                </div>
+
+
+                                <div class="col-md-3">
+
+                                    <label
+                                        class="form-label"
+                                        for="studentAge"
+                                    >
+                                        Age
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        id="studentAge"
+                                        class="form-control"
+                                        min="3"
+                                        max="100"
+                                        placeholder="Age"
+                                    >
+
+                                </div>
+
+
+                                <div class="col-md-3">
+
+                                    <label
+                                        class="form-label"
+                                        for="studentMobile"
+                                    >
+                                        Mobile
+                                    </label>
+
+                                    <input
+                                        type="tel"
+                                        id="studentMobile"
+                                        class="form-control"
+                                        placeholder="Mobile"
+                                    >
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="app-card mb-4">
+
+                        <div class="app-card-header">
+
+                            <h3 class="app-card-title">
+                                Course Settings
+                            </h3>
+
+                        </div>
+
+                        <div class="app-card-body">
+
+                            <div class="row g-3">
+
+                                <div class="col-md-4">
+
+                                    <label
+                                        class="form-label"
+                                        for="classesPerWeek"
+                                    >
+                                        Classes Per Week
+                                    </label>
+
+                                    <select
+                                        id="classesPerWeek"
+                                        class="form-select"
+                                    >
+                                        <option value="1">
+                                            1 Class / Week
+                                        </option>
+
+                                        <option
+                                            value="2"
+                                            selected
+                                        >
+                                            2 Classes / Week
+                                        </option>
+
+                                        <option value="3">
+                                            3 Classes / Week
+                                        </option>
+
+                                        <option value="4">
+                                            4 Classes / Week
+                                        </option>
+
+                                        <option value="5">
+                                            5 Classes / Week
+                                        </option>
+
+                                        <option value="6">
+                                            6 Classes / Week
+                                        </option>
+
+                                        <option value="7">
+                                            7 Classes / Week
+                                        </option>
+                                    </select>
+
+                                </div>
+
+
+                                <div class="col-md-4">
+
+                                    <label
+                                        class="form-label"
+                                        for="durationMinutes"
+                                    >
+                                        Default Class Duration
+                                    </label>
+
+                                    <select
+                                        id="durationMinutes"
+                                        class="form-select"
+                                    >
+
+                                        <option value="60">
+                                            1 Hour
+                                        </option>
+
+                                        <option value="90">
+                                            1.5 Hours
+                                        </option>
+
+                                        <option
+                                            value="120"
+                                            selected
+                                        >
+                                            2 Hours
+                                        </option>
+
+                                        <option value="150">
+                                            2.5 Hours
+                                        </option>
+
+                                        <option value="180">
+                                            3 Hours
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+
+                                <div class="col-md-4">
+
+                                    <label
+                                        class="form-label"
+                                        for="defaultTime"
+                                    >
+                                        Default Class Time
+                                    </label>
+
+                                    <input
+                                        type="time"
+                                        id="defaultTime"
+                                        class="form-control"
+                                        value="15:00"
+                                    >
+
+                                </div>
+
+
+                                <div class="col-md-6">
+
+                                    <label
+                                        class="form-label"
+                                        for="startDate"
+                                    >
+                                        Course Start Date
+                                    </label>
+
+                                    <input
+                                        type="date"
+                                        id="startDate"
+                                        class="form-control"
+                                    >
+
+                                </div>
+
+
+                                <div class="col-md-6">
+
+                                    <label
+                                        class="form-label"
+                                        for="endDate"
+                                    >
+                                        Course End Date
+                                    </label>
+
+                                    <input
+                                        type="date"
+                                        id="endDate"
+                                        class="form-control"
+                                    >
+
+                                    <div class="form-text">
+                                        Default: Start Date + 365 days
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="d-flex justify-content-end mb-4">
+
+                        <button
+                            type="submit"
+                            class="btn btn-success px-4"
+                        >
+                            💾 Save Settings
+                        </button>
+
+                    </div>
+
+                </form>
+
+
+                <!-- Danger Zone -->
+
+                <div class="danger-zone">
+
+                    <h5 class="text-danger fw-bold">
+                        ⚠️ Danger Zone
+                    </h5>
+
+                    <p class="text-muted small">
+                        Delete all class history and reset the
+                        student settings. This action cannot be undone.
+                    </p>
+
+                    <button
+                        type="button"
+                        id="deleteBtn"
+                        class="btn btn-outline-danger"
+                    >
+                        🗑️ Delete All Data
+                    </button>
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+
+    <!-- =====================================================
+         MOBILE BOTTOM NAV
+    ====================================================== -->
+
+    <nav class="mobile-bottom-nav">
+
+        <div class="mobile-bottom-nav-inner">
+
+            <button
+                type="button"
+                class="mobile-nav-btn active"
+                data-view="dashboard"
+            >
+                <span>🏠</span>
+                Home
+            </button>
+
+            <button
+                type="button"
+                class="mobile-nav-btn"
+                data-view="calendar"
+            >
+                <span>📅</span>
+                Calendar
+            </button>
+
+            <button
+                type="button"
+                class="mobile-nav-btn"
+                data-view="history"
+            >
+                <span>📋</span>
+                History
+            </button>
+
+            <button
+                type="button"
+                class="mobile-nav-btn"
+                data-view="settings"
+            >
+                <span>⚙️</span>
+                Settings
+            </button>
+
+        </div>
+
+    </nav>
+
+
+    <!-- =====================================================
+         CLASS MODAL
+    ====================================================== -->
+
+    <div
+        class="modal fade"
+        id="modal"
+        tabindex="-1"
+        aria-hidden="true"
+    >
+
+        <div class="modal-dialog modal-dialog-centered">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+
+                    <h5
+                        id="modalTitle"
+                        class="modal-title"
+                    >
+                        ♟ Add Chess Class
+                    </h5>
+
+                    <button
+                        type="button"
+                        class="btn-close btn-close-white"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                    ></button>
+
+                </div>
+
+
+                <form id="classForm">
+
+                    <div class="modal-body">
+
+                        <div class="row g-3">
+
+
+                            <div class="col-12">
+
+                                <label
+                                    class="form-label"
+                                    for="classDate"
+                                >
+                                    Class Date
+                                </label>
+
+                                <input
+                                    type="date"
+                                    id="classDate"
+                                    class="form-control"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="col-12">
+
+                                <label
+                                    class="form-label"
+                                    for="classStatus"
+                                >
+                                    Status
+                                </label>
+
+                                <select
+                                    id="classStatus"
+                                    class="form-select"
+                                >
+
+                                    <option value="completed">
+                                        ✅ Completed
+                                    </option>
+
+                                    <option value="missed">
+                                        ❌ Missed
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <label
+                                    class="form-label"
+                                    for="actualTime"
+                                >
+                                    Actual Start Time
+                                </label>
+
+                                <input
+                                    type="time"
+                                    id="actualTime"
+                                    class="form-control"
+                                >
+
+                                <div class="form-text">
+                                    You can change this for every class.
+                                </div>
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <label
+                                    class="form-label"
+                                    for="actualDuration"
+                                >
+                                    Actual Duration
+                                </label>
+
+                                <select
+                                    id="actualDuration"
+                                    class="form-select"
+                                >
+
+                                    <option value="60">
+                                        1 Hour
+                                    </option>
+
+                                    <option value="90">
+                                        1.5 Hours
+                                    </option>
+
+                                    <option value="120">
+                                        2 Hours
+                                    </option>
+
+                                    <option value="150">
+                                        2.5 Hours
+                                    </option>
+
+                                    <option value="180">
+                                        3 Hours
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <div class="col-12">
+
+                                <label
+                                    class="form-label"
+                                    for="classNotes"
+                                >
+                                    Notes
+                                </label>
+
+                                <textarea
+                                    id="classNotes"
+                                    class="form-control"
+                                    rows="3"
+                                    placeholder="Optional notes..."
+                                ></textarea>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="modal-footer">
+
+                        <button
+                            type="button"
+                            id="modalDelete"
+                            class="btn btn-outline-danger d-none me-auto"
+                        >
+                            🗑️ Delete Class
+                        </button>
+
+                        <button
+                            type="button"
+                            id="modalCancel"
+                            class="btn btn-light"
+                            data-bs-dismiss="modal"
+                        >
+                            Cancel
+                        </button>
+
+                        <button
+                            type="submit"
+                            class="btn btn-success"
+                        >
+                            💾 Save Class
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         TOAST
+    ====================================================== -->
+
+    <div
+        class="position-fixed bottom-0 end-0 p-3"
+        style="z-index:1090;"
+    >
+
+        <div
+            id="toast"
+            class="toast align-items-center text-bg-success border-0"
+            role="alert"
+            aria-live="assertive"
+            aria-atomic="true"
+        >
+
+            <div class="d-flex">
+
+                <div class="toast-body">
+                    Done
+                </div>
+
+                <button
+                    type="button"
+                    class="btn-close btn-close-white me-2 m-auto"
+                    data-bs-dismiss="toast"
+                ></button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     BOOTSTRAP JS
+========================================================= -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+</script>
+
+
+<!-- =========================================================
+     APPLICATION JAVASCRIPT
+========================================================= -->
+
+<script>
+(() => {
+    "use strict";
+
+    const DB_NAME = "ChessClassTrackerDB";
+    const DB_VERSION = 1;
+
+    const state = {
+        db: null,
+        settings: null,
+        records: [],
+        recordsByDate: new Map(),
+        currentCalendarDate: new Date()
+    };
+
+    const refs = {};
+    let toastInstance = null;
+    let modalInstance = null;
+    let deferredPrompt = null;
+
+    function cacheRefs() {
+        refs.modal = document.getElementById("modal");
+        refs.toast = document.getElementById("toast");
+        refs.installButton = document.getElementById("installAppBtn");
+        refs.calendarGrid = document.getElementById("calendarGrid");
+        refs.monthTitle = document.getElementById("monthTitle");
+        refs.monthSummary = document.getElementById("monthSummary");
+        refs.historyList = document.getElementById("historyList");
+        refs.loader = document.getElementById("appLoader");
+    }
+
+    function setLoading(isLoading) {
+        document.body.classList.toggle("loading", isLoading);
+        if (refs.loader) {
+            refs.loader.classList.toggle("d-none", !isLoading);
+        }
+    }
+
+    function todayISO() {
+        const d = new Date();
+        return [
+            d.getFullYear(),
+            String(d.getMonth() + 1).padStart(2, "0"),
+            String(d.getDate()).padStart(2, "0")
+        ].join("-");
+    }
+
+    function dateObj(iso) {
+        if (!iso) return new Date();
+        const [year, month, day] = iso.split("-").map(Number);
+        return new Date(year, month - 1, day);
+    }
+
+    function dateToISO(date) {
+        return [
+            date.getFullYear(),
+            String(date.getMonth() + 1).padStart(2, "0"),
+            String(date.getDate()).padStart(2, "0")
+        ].join("-");
+    }
+
+    function addDays(iso, days) {
+        const d = dateObj(iso);
+        d.setDate(d.getDate() + Number(days));
+        return dateToISO(d);
+    }
+
+    function daysBetween(start, end) {
+        return Math.floor((dateObj(end) - dateObj(start)) / 86400000);
+    }
+
+    function formatDate(iso) {
+        if (!iso) return "-";
+        return dateObj(iso).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+    }
+
+    function formatTime(time) {
+        if (!time) return "-";
+        const [hour, minute] = time.split(":").map(Number);
+        const d = new Date();
+        d.setHours(hour, minute, 0, 0);
+        return d.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" });
+    }
+
+    function formatDuration(minutes) {
+        const total = Number(minutes || 0);
+        if (total < 60) return `${total} min`;
+        const hours = Math.floor(total / 60);
+        const mins = total % 60;
+        return mins ? `${hours} hr ${mins} min` : `${hours} hr`;
+    }
+
+    function escapeHTML(value) {
+        return String(value ?? "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
+    function buildDefaultSettings() {
+        const start = todayISO();
+        return {
+            id: 1,
+            studentName: "",
+            studentAge: "",
+            studentMobile: "",
+            classesPerWeek: 2,
+            durationMinutes: 120,
+            defaultTime: "15:00",
+            startDate: start,
+            endDate: addDays(start, 365)
+        };
+    }
+
+    function setSettingsFromForm() {
+        const startDate = document.getElementById("startDate").value;
+        let endDate = document.getElementById("endDate").value;
+
+        if (!startDate) {
+            showToast("Please select start date.", "warning");
+            return null;
+        }
+
+        if (!endDate) {
+            endDate = addDays(startDate, 365);
+        }
+
+        if (dateObj(endDate) < dateObj(startDate)) {
+            showToast("End date cannot be before start date.", "warning");
+            return null;
+        }
+
+        state.settings = {
+            id: 1,
+            studentName: document.getElementById("studentName").value.trim(),
+            studentAge: document.getElementById("studentAge").value.trim(),
+            studentMobile: document.getElementById("studentMobile").value.trim(),
+            classesPerWeek: Number(document.getElementById("classesPerWeek").value) || 2,
+            durationMinutes: Number(document.getElementById("durationMinutes").value) || 120,
+            defaultTime: document.getElementById("defaultTime").value || "15:00",
+            startDate,
+            endDate
+        };
+
+        return state.settings;
+    }
+
+    function loadSettingsForm() {
+        if (!state.settings) return;
+        document.getElementById("studentName").value = state.settings.studentName || "";
+        document.getElementById("studentAge").value = state.settings.studentAge || "";
+        document.getElementById("studentMobile").value = state.settings.studentMobile || "";
+        document.getElementById("classesPerWeek").value = state.settings.classesPerWeek || 2;
+        document.getElementById("durationMinutes").value = state.settings.durationMinutes || 120;
+        document.getElementById("defaultTime").value = state.settings.defaultTime || "15:00";
+        document.getElementById("startDate").value = state.settings.startDate;
+        document.getElementById("endDate").value = state.settings.endDate;
+    }
+
+    function getMonthKey(date) {
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+    }
+
+    function getMonthRange(monthDate) {
+        const year = monthDate.getFullYear();
+        const month = monthDate.getMonth();
+        return {
+            first: new Date(year, month, 1),
+            last: new Date(year, month + 1, 0)
+        };
+    }
+
+    function isDateInCourse(date) {
+        if (!state.settings) return false;
+        return date >= state.settings.startDate && date <= state.settings.endDate;
+    }
+
+    function getCourseWeeks() {
+        if (!state.settings) return 0;
+        const diff = daysBetween(state.settings.startDate, state.settings.endDate);
+        return Math.floor(diff / 7) + 1;
+    }
+
+    function getTotalTargetClasses() {
+        if (!state.settings) return 0;
+        return getCourseWeeks() * Number(state.settings.classesPerWeek || 2);
+    }
+
+    function monthTarget(monthDate) {
+        if (!state.settings) return 0;
+        const { first, last } = getMonthRange(monthDate);
+        const monthStart = dateToISO(first);
+        const monthEnd = dateToISO(last);
+        const overlapStart = monthStart > state.settings.startDate ? monthStart : state.settings.startDate;
+        const overlapEnd = monthEnd < state.settings.endDate ? monthEnd : state.settings.endDate;
+        if (overlapStart > overlapEnd) return 0;
+        const overlapDays = daysBetween(overlapStart, overlapEnd) + 1;
+        const weeklyTarget = Number(state.settings.classesPerWeek || 2);
+        return Math.ceil((overlapDays / 7) * weeklyTarget);
+    }
+
+    function rebuildRecordsIndex() {
+        state.recordsByDate = new Map();
+        for (const record of state.records) {
+            if (record && record.classDate) state.recordsByDate.set(record.classDate, record);
+        }
+    }
+
+    function getRecordByDate(date) {
+        return state.recordsByDate.get(date) || null;
+    }
+
+    function getCompletedRecords() {
+        return state.records.filter((record) => record.status === "completed");
+    }
+
+    function getCompletedCount() {
+        return getCompletedRecords().length;
+    }
+
+    function calculateStats() {
+        const target = getTotalTargetClasses();
+        const completed = getCompletedCount();
+        const remaining = Math.max(0, target - completed);
+        const percentage = target > 0 ? Math.min(100, Math.round((completed / target) * 100)) : 0;
+        return { target, completed, remaining, percentage };
+    }
+
+    function getCurrentWeekInfo() {
+        if (!state.settings) return null;
+        const today = todayISO();
+        const currentDate = today < state.settings.startDate ? state.settings.startDate : today > state.settings.endDate ? state.settings.endDate : today;
+        const daysSinceStart = daysBetween(state.settings.startDate, currentDate);
+        const weekIndex = Math.floor(daysSinceStart / 7) + 1;
+        const weekStart = addDays(state.settings.startDate, (weekIndex - 1) * 7);
+        let weekEnd = addDays(weekStart, 6);
+        if (weekEnd > state.settings.endDate) weekEnd = state.settings.endDate;
+
+        const weekRecords = state.records.filter((record) => record.classDate >= weekStart && record.classDate <= weekEnd);
+        const completed = weekRecords.filter((record) => record.status === "completed").length;
+        const target = Number(state.settings.classesPerWeek || 2);
+        const remaining = Math.max(0, target - completed);
+        const extra = Math.max(0, completed - target);
+
+        return { weekIndex, weekStart, weekEnd, target, completed, remaining, extra };
+    }
+
+    function getMonthlyBalances() {
+        if (!state.settings) return [];
+
+        const completedByMonth = new Map();
+        for (const record of state.records) {
+            if (record.status !== "completed") continue;
+            const key = getMonthKey(dateObj(record.classDate));
+            completedByMonth.set(key, (completedByMonth.get(key) || 0) + 1);
+        }
+
+        const start = dateObj(state.settings.startDate);
+        const courseEnd = dateObj(state.settings.endDate);
+        const result = [];
+        let carry = 0;
+        let cursor = new Date(start.getFullYear(), start.getMonth(), 1);
+
+        while (cursor <= courseEnd) {
+            const key = getMonthKey(cursor);
+            const target = monthTarget(cursor);
+            const completed = completedByMonth.get(key) || 0;
+            const required = Math.max(0, target + carry);
+            const balance = completed - required;
+            const missed = Math.max(0, -balance);
+            const surplus = Math.max(0, balance);
+
+            result.push({
+                key,
+                year: cursor.getFullYear(),
+                month: cursor.getMonth(),
+                target,
+                carryIn: carry,
+                required,
+                completed,
+                missed,
+                surplus,
+                carryOut: missed > 0 ? missed : -surplus
+            });
+
+            carry = missed > 0 ? missed : -surplus;
+            cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
+        }
+
+        return result;
+    }
+
+    function getRecoveryInfo() {
+        if (!state.settings) return null;
+        const balances = getMonthlyBalances();
+        const now = new Date();
+        const currentIndex = balances.findIndex((month) => month.year === now.getFullYear() && month.month === now.getMonth());
+        if (currentIndex < 0) return null;
+
+        const current = balances[currentIndex];
+        const previous = currentIndex > 0 ? balances[currentIndex - 1] : null;
+        const today = todayISO();
+        const remainingDays = Math.max(0, daysBetween(today > state.settings.startDate ? today : state.settings.startDate, state.settings.endDate));
+        const futureWeeks = Math.max(1, Math.ceil(remainingDays / 7));
+        const totalDeficit = balances.reduce((sum, month) => sum + month.missed, 0);
+        const extraPerWeek = totalDeficit > 0 ? Math.ceil(totalDeficit / futureWeeks) : 0;
+
+        return {
+            current,
+            previous,
+            carryIn: current.carryIn,
+            totalDeficit,
+            futureWeeks,
+            extraPerWeek
+        };
+    }
+
+    function renderDashboard() {
+        if (!state.settings) return;
+
+        const stats = calculateStats();
+        const week = getCurrentWeekInfo();
+        const recovery = getRecoveryInfo();
+
+        document.getElementById("dashStudent").textContent = state.settings.studentName || "Chess Student";
+        document.getElementById("dateRange").textContent = `${formatDate(state.settings.startDate)} → ${formatDate(state.settings.endDate)}`;
+        document.getElementById("totalClasses").textContent = stats.target;
+        document.getElementById("completedClasses").textContent = stats.completed;
+        document.getElementById("remainingClasses").textContent = stats.remaining;
+        document.getElementById("progressPct").textContent = `${stats.percentage}%`;
+        document.getElementById("progressBar").style.width = `${stats.percentage}%`;
+
+        if (week) {
+            document.getElementById("weekLabel").textContent = `Week ${week.weekIndex}`;
+            document.getElementById("weekTarget").textContent = week.target;
+            document.getElementById("weekDone").textContent = week.completed;
+            document.getElementById("weekRemaining").textContent = week.remaining;
+        }
+
+        const totalMinutes = getCompletedRecords().reduce((sum, record) => sum + Number(record.actualDuration || 0), 0);
+        const plannedMinutes = getTotalTargetClasses() * Number(state.settings.durationMinutes || 0);
+        const remainingMinutes = Math.max(0, plannedMinutes - totalMinutes);
+
+        document.getElementById("hoursDone").textContent = formatDuration(totalMinutes);
+        document.getElementById("hoursRemaining").textContent = formatDuration(remainingMinutes);
+
+        const recoveryBox = document.getElementById("recoveryBox");
+        if (!recoveryBox) return;
+
+        if (recovery && recovery.carryIn > 0) {
+            recoveryBox.className = "alert alert-warning";
+            recoveryBox.innerHTML = `
+                <strong>♻️ Recovery Required</strong><br>
+                ${recovery.carryIn} class(es) are carried forward from the previous month.
+                <br>
+                Try to attend <strong>${Number(state.settings.classesPerWeek) + 1} classes/week</strong> or more to catch up.
+            `;
+        } else if (recovery && recovery.totalDeficit > 0) {
+            recoveryBox.className = "alert alert-warning";
+            recoveryBox.innerHTML = `
+                <strong>♟ Catch-up Plan</strong><br>
+                Total pending classes: <strong>${recovery.totalDeficit}</strong>.
+                <br>
+                Suggested extra classes/week: <strong>${recovery.extraPerWeek}</strong>.
+            `;
+        } else if (recovery && recovery.current && recovery.current.surplus > 0) {
+            recoveryBox.className = "alert alert-success";
+            recoveryBox.innerHTML = `
+                <strong>🔥 Excellent!</strong><br>
+                ${recovery.current.surplus} extra class(es) completed. This gives you carry-forward benefit for the next month.
+            `;
+        } else {
+            recoveryBox.className = "alert alert-success";
+            recoveryBox.innerHTML = `
+                <strong>♟ On Track</strong><br>
+                No recovery classes are currently required.
+            `;
+        }
+    }
+
+    function renderCalendar() {
+        if (!refs.calendarGrid || !state.settings) return;
+
+        const year = state.currentCalendarDate.getFullYear();
+        const month = state.currentCalendarDate.getMonth();
+        refs.monthTitle.textContent = state.currentCalendarDate.toLocaleDateString("en-IN", { month: "long", year: "numeric" });
+
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        const startDay = firstDay.getDay();
+        const totalDays = lastDay.getDate();
+
+        const fragment = document.createDocumentFragment();
+        for (let i = 0; i < startDay; i += 1) {
+            const empty = document.createElement("div");
+            empty.className = "calendar-day empty";
+            fragment.appendChild(empty);
+        }
+
+        const monthStatus = getMonthlyBalances().find((item) => item.year === year && item.month === month);
+        const recoveryActive = Boolean(monthStatus && (monthStatus.carryIn > 0 || monthStatus.missed > 0));
+
+        for (let day = 1; day <= totalDays; day += 1) {
+            const iso = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+            const record = getRecordByDate(iso);
+            const isToday = iso === todayISO();
+            const inCourse = isDateInCourse(iso);
+
+            const button = document.createElement("button");
+            button.type = "button";
+            button.dataset.calendarDate = iso;
+            button.className = "calendar-day";
+            if (!inCourse) button.classList.add("outside-course");
+            if (isToday) button.classList.add("today");
+            if (record && record.status === "completed") button.classList.add("completed");
+            if (record && record.status === "missed") button.classList.add("missed");
+            if (!inCourse) button.disabled = true;
+
+            const dayNumber = document.createElement("div");
+            dayNumber.className = "day-number";
+            dayNumber.textContent = day;
+            button.appendChild(dayNumber);
+
+            if (record) {
+                const status = document.createElement("span");
+                status.className = `day-status ${record.status === "completed" ? "success" : "danger"}`;
+                status.innerHTML = record.status === "completed" ? "✓ Completed" : "✕ Missed";
+                button.appendChild(status);
+            } else if (recoveryActive && inCourse && iso >= todayISO()) {
+                const status = document.createElement("span");
+                status.className = "day-status recovery";
+                status.textContent = "↗ Recovery";
+                button.appendChild(status);
+            }
+
+            fragment.appendChild(button);
+        }
+
+        refs.calendarGrid.replaceChildren(fragment);
+        renderMonthSummary();
+    }
+
+    function renderMonthSummary() {
+        if (!refs.monthSummary || !state.settings) return;
+        const year = state.currentCalendarDate.getFullYear();
+        const month = state.currentCalendarDate.getMonth();
+        const item = getMonthlyBalances().find((record) => record.year === year && record.month === month);
+
+        if (!item) {
+            refs.monthSummary.innerHTML = '<div class="text-muted">No course data for this month.</div>';
+            return;
+        }
+
+        refs.monthSummary.innerHTML = `
+            <div class="row g-2">
+                <div class="col-6 col-md-3"><div class="summary-box"><small>Planned</small><strong>${item.target}</strong></div></div>
+                <div class="col-6 col-md-3"><div class="summary-box success-box"><small>Completed</small><strong>${item.completed}</strong></div></div>
+                <div class="col-6 col-md-3"><div class="summary-box danger-box"><small>Missed</small><strong>${item.missed}</strong></div></div>
+                <div class="col-6 col-md-3"><div class="summary-box warning-box"><small>Carry In</small><strong>${item.carryIn}</strong></div></div>
+            </div>
+            ${item.surplus > 0 ? `<div class="alert alert-success mt-3 mb-0">🔥 ${item.surplus} extra class(es) completed. Next month's requirement can reduce.</div>` : ""}
+            ${item.missed > 0 ? `<div class="alert alert-warning mt-3 mb-0">⚠️ ${item.missed} class(es) need recovery.</div>` : ""}
+        `;
+    }
+
+    function renderHistory() {
+        if (!refs.historyList) return;
+
+        if (!state.records.length) {
+            refs.historyList.innerHTML = `
+                <div class="text-center py-5 text-muted">
+                    <div class="display-5">♟</div>
+                    <h5>No class history yet</h5>
+                    <p>Add your first chess class.</p>
+                    <button type="button" class="btn btn-primary" id="historyEmptyAdd">+ Add Class</button>
+                </div>
+            `;
+            return;
+        }
+
+        const sorted = [...state.records].sort((a, b) => b.classDate.localeCompare(a.classDate));
+        const fragment = document.createDocumentFragment();
+
+        for (const record of sorted) {
+            const item = document.createElement("div");
+            item.className = "history-item";
+            item.innerHTML = `
+                <div class="history-date">
+                    <strong>${formatDate(record.classDate)}</strong>
+                    <small>${formatTime(record.actualTime)}</small>
+                </div>
+                <div class="history-info">
+                    <span class="badge ${record.status === "completed" ? "text-bg-success" : "text-bg-danger"}">
+                        ${record.status === "completed" ? "✓ Completed" : "✕ Missed"}
+                    </span>
+                    <span class="history-duration">${formatDuration(record.actualDuration)}</span>
+                    ${record.notes ? `<div class="history-note">${escapeHTML(record.notes)}</div>` : ""}
+                </div>
+                <div class="history-actions">
+                    <button type="button" class="btn btn-sm btn-outline-primary history-edit" data-id="${record.id}" title="Edit">✏️</button>
+                    <button type="button" class="btn btn-sm btn-outline-danger history-delete" data-id="${record.id}" title="Delete">🗑️</button>
+                </div>
+            `;
+            fragment.appendChild(item);
+        }
+
+        refs.historyList.replaceChildren(fragment);
+    }
+
+    function openClassModal(date = todayISO()) {
+        if (!state.settings) return;
+        const existing = getRecordByDate(date);
+        const modalTitle = document.getElementById("modalTitle");
+        const classDate = document.getElementById("classDate");
+        const classStatus = document.getElementById("classStatus");
+        const actualTime = document.getElementById("actualTime");
+        const actualDuration = document.getElementById("actualDuration");
+        const classNotes = document.getElementById("classNotes");
+        const deleteButton = document.getElementById("modalDelete");
+
+        modalTitle.textContent = existing ? "♟ Update Chess Class" : "♟ Add Chess Class";
+        classDate.value = date;
+        classStatus.value = existing?.status || "completed";
+        actualTime.value = existing?.actualTime || state.settings.defaultTime || "15:00";
+        actualDuration.value = existing?.actualDuration || state.settings.durationMinutes || 120;
+        classNotes.value = existing?.notes || "";
+        deleteButton.classList.toggle("d-none", !existing);
+
+        if (!modalInstance) {
+            modalInstance = bootstrap.Modal.getOrCreateInstance(refs.modal);
+        }
+        modalInstance.show();
+    }
+
+    async function handleSettingsSave(event) {
+        event.preventDefault();
+        const settings = setSettingsFromForm();
+        if (!settings) return;
+
+        try {
+            await saveSettings(settings);
+            state.settings = settings;
+            loadSettingsForm();
+            refreshAll();
+            showToast("Settings saved successfully.", "success");
+        } catch (error) {
+            console.error(error);
+            showToast("Unable to save settings.", "danger");
+        }
+    }
+
+    async function handleClassSave(event) {
+        event.preventDefault();
+        const date = document.getElementById("classDate").value;
+        const status = document.getElementById("classStatus").value;
+        const actualTime = document.getElementById("actualTime").value;
+        const actualDuration = Number(document.getElementById("actualDuration").value) || 0;
+        const notes = document.getElementById("classNotes").value.trim();
+
+        if (!date) {
+            showToast("Please select class date.", "warning");
+            return;
+        }
+
+        if (!isDateInCourse(date)) {
+            showToast("Class date must be inside course period.", "warning");
+            return;
+        }
+
+        const existing = getRecordByDate(date);
+        const record = {
+            classDate: date,
+            status,
+            actualTime,
+            actualDuration,
+            notes
+        };
+
+        try {
+            if (existing) {
+                record.id = existing.id;
+                record.createdAt = existing.createdAt;
+                await updateRecord(record);
+                const index = state.records.findIndex((item) => Number(item.id) === Number(existing.id));
+                if (index >= 0) state.records[index] = { ...state.records[index], ...record };
+                showToast("Class updated successfully.", "success");
+            } else {
+                const id = await addRecord(record);
+                state.records.push({ ...record, id, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
+                showToast("Class added successfully.", "success");
+            }
+
+            state.records.sort((a, b) => a.classDate.localeCompare(b.classDate));
+            rebuildRecordsIndex();
+            if (modalInstance) modalInstance.hide();
+            refreshAll();
+        } catch (error) {
+            console.error(error);
+            showToast("Unable to save class.", "danger");
+        }
+    }
+
+    async function handleModalDelete() {
+        const date = document.getElementById("classDate").value;
+        const existing = getRecordByDate(date);
+        if (!existing) {
+            showToast("Class record not found.", "warning");
+            return;
+        }
+
+        if (!confirm(`Delete class on ${formatDate(date)}?`)) return;
+
+        try {
+            await deleteRecord(existing.id);
+            state.records = state.records.filter((record) => Number(record.id) !== Number(existing.id));
+            rebuildRecordsIndex();
+            if (modalInstance) modalInstance.hide();
+            refreshAll();
+            showToast("Class deleted successfully.", "success");
+        } catch (error) {
+            console.error(error);
+            showToast("Unable to delete class.", "danger");
+        }
+    }
+
+    async function deleteAllData() {
+        if (!confirm("Delete ALL chess class records and reset settings?")) return;
+        if (!confirm("Are you absolutely sure? This cannot be undone.")) return;
+
+        try {
+            await clearRecords();
+            state.records = [];
+            rebuildRecordsIndex();
+            state.settings = buildDefaultSettings();
+            await saveSettings(state.settings);
+            loadSettingsForm();
+            refreshAll();
+            showView("dashboard");
+            showToast("All data deleted successfully.", "success");
+        } catch (error) {
+            console.error(error);
+            showToast("Unable to delete all data.", "danger");
+        }
+    }
+
+    function previousMonth() {
+        state.currentCalendarDate = new Date(state.currentCalendarDate.getFullYear(), state.currentCalendarDate.getMonth() - 1, 1);
+        renderCalendar();
+    }
+
+    function nextMonth() {
+        state.currentCalendarDate = new Date(state.currentCalendarDate.getFullYear(), state.currentCalendarDate.getMonth() + 1, 1);
+        renderCalendar();
+    }
+
+    function showView(view) {
+        document.querySelectorAll("[data-view]").forEach((button) => {
+            button.classList.toggle("active", button.dataset.view === view);
+        });
+
+        document.querySelectorAll(".app-view").forEach((section) => {
+            section.classList.toggle("d-none", section.id !== view);
+        });
+
+        if (view === "calendar") renderCalendar();
+        if (view === "history") renderHistory();
+        if (view === "dashboard") renderDashboard();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function showToast(message, type = "success") {
+        if (!refs.toast) return;
+        refs.toast.className = `toast align-items-center text-bg-${type} border-0`;
+        refs.toast.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">${escapeHTML(message)}</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        `;
+        if (!toastInstance) {
+            toastInstance = bootstrap.Toast.getOrCreateInstance(refs.toast, { delay: 2500 });
+        }
+        toastInstance.show();
+    }
+
+    function refreshAll() {
+        renderDashboard();
+        renderCalendar();
+        renderHistory();
+    }
+
+    function updateInstallButtonState() {
+        if (!refs.installButton) return;
+
+        const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+        const available = Boolean(deferredPrompt) && !isStandalone;
+
+        refs.installButton.classList.toggle("d-none", !available);
+        refs.installButton.disabled = !available;
+        refs.installButton.textContent = isStandalone ? "Installed" : "⬇ Install";
+    }
+
+    function setupPwa() {
+        if (refs.installButton) {
+            refs.installButton.addEventListener("click", async () => {
+                if (!deferredPrompt) {
+                    showToast("Install is available from the browser menu when supported.", "warning");
+                    return;
+                }
+
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+
+                if (outcome === "accepted") {
+                    showToast("Installation started successfully.", "success");
+                } else {
+                    showToast("Install cancelled.", "warning");
+                }
+
+                deferredPrompt = null;
+                updateInstallButtonState();
+            });
+        }
+
+        window.addEventListener("beforeinstallprompt", (event) => {
+            event.preventDefault();
+            deferredPrompt = event;
+            updateInstallButtonState();
+        });
+
+        window.addEventListener("appinstalled", () => {
+            deferredPrompt = null;
+            updateInstallButtonState();
+        });
+
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", () => {
+                navigator.serviceWorker.register("./service-worker.js").catch((error) => {
+                    console.error("Service worker registration failed:", error);
+                });
+            });
+        }
+
+        if (window.matchMedia) {
+            const mediaQuery = window.matchMedia("(display-mode: standalone)");
+            const changeHandler = () => updateInstallButtonState();
+
+            if (typeof mediaQuery.addEventListener === "function") {
+                mediaQuery.addEventListener("change", changeHandler);
+            } else if (typeof mediaQuery.addListener === "function") {
+                mediaQuery.addListener(changeHandler);
+            }
+        }
+
+        updateInstallButtonState();
+    }
+
+    function setupEventDelegation() {
+        document.addEventListener("click", (event) => {
+            const viewButton = event.target.closest("[data-view]");
+            if (viewButton) {
+                showView(viewButton.dataset.view);
+                return;
+            }
+
+            const calendarDay = event.target.closest("[data-calendar-date]");
+            if (calendarDay) {
+                openClassModal(calendarDay.dataset.calendarDate);
+                return;
+            }
+
+            const historyEdit = event.target.closest(".history-edit");
+            if (historyEdit) {
+                const record = state.records.find((item) => Number(item.id) === Number(historyEdit.dataset.id));
+                if (record) openClassModal(record.classDate);
+                return;
+            }
+
+            const historyDelete = event.target.closest(".history-delete");
+            if (historyDelete) {
+                const record = state.records.find((item) => Number(item.id) === Number(historyDelete.dataset.id));
+                if (!record) {
+                    showToast("Record not found.", "warning");
+                    return;
+                }
+                if (confirm(`Delete class on ${formatDate(record.classDate)}?`)) {
+                    deleteRecord(record.id)
+                        .then(() => {
+                            state.records = state.records.filter((item) => Number(item.id) !== Number(record.id));
+                            rebuildRecordsIndex();
+                            refreshAll();
+                            showToast("Class deleted successfully.", "success");
+                        })
+                        .catch((error) => {
+                            console.error(error);
+                            showToast("Delete failed.", "danger");
+                        });
+                }
+                return;
+            }
+
+            const emptyHistoryAdd = event.target.closest("#historyEmptyAdd");
+            if (emptyHistoryAdd) {
+                openClassModal();
+                return;
+            }
+
+            const quickAdd = event.target.closest("#quickAdd");
+            if (quickAdd) {
+                openClassModal();
+            }
+        });
+
+        document.getElementById("historyAdd")?.addEventListener("click", () => openClassModal());
+        document.getElementById("settingsForm")?.addEventListener("submit", handleSettingsSave);
+        document.getElementById("classForm")?.addEventListener("submit", handleClassSave);
+        document.getElementById("modalDelete")?.addEventListener("click", handleModalDelete);
+        document.getElementById("prevMonth")?.addEventListener("click", previousMonth);
+        document.getElementById("nextMonth")?.addEventListener("click", nextMonth);
+        document.getElementById("deleteBtn")?.addEventListener("click", deleteAllData);
+
+        document.getElementById("startDate")?.addEventListener("change", (event) => {
+            const start = event.target.value;
+            const endField = document.getElementById("endDate");
+            if (start && (!endField.value || endField.dataset.auto === "true")) {
+                endField.value = addDays(start, 365);
+                endField.dataset.auto = "true";
+            }
+        });
+
+        document.getElementById("endDate")?.addEventListener("change", (event) => {
+            event.target.dataset.auto = "false";
+        });
+
+        document.addEventListener("keydown", (event) => {
+            if (event.ctrlKey && event.key.toLowerCase() === "n") {
+                event.preventDefault();
+                openClassModal();
+            }
+        });
+    }
+
+    function openDatabase() {
+        return new Promise((resolve, reject) => {
+            if (!("indexedDB" in window)) {
+                reject(new Error("IndexedDB is unavailable in this browser."));
+                return;
+            }
+
+            const request = indexedDB.open(DB_NAME, DB_VERSION);
+            request.onupgradeneeded = (event) => {
+                const database = event.target.result;
+                if (!database.objectStoreNames.contains("settings")) {
+                    database.createObjectStore("settings", { keyPath: "id" });
+                }
+                if (!database.objectStoreNames.contains("attendance")) {
+                    const store = database.createObjectStore("attendance", { keyPath: "id", autoIncrement: true });
+                    store.createIndex("classDate", "classDate", { unique: false });
+                }
+            };
+
+            request.onsuccess = () => {
+                state.db = request.result;
+                resolve(request.result);
+            };
+
+            request.onerror = () => {
+                reject(request.error || new Error("IndexedDB open failed."));
+            };
+        });
+    }
+
+    function getSettings() {
+        return new Promise((resolve, reject) => {
+            const tx = state.db.transaction("settings", "readonly");
+            const request = tx.objectStore("settings").get(1);
+            request.onsuccess = () => resolve(request.result || null);
+            request.onerror = () => reject(request.error || new Error("Failed to read settings."));
+        });
+    }
+
+    function saveSettings(data) {
+        return new Promise((resolve, reject) => {
+            const tx = state.db.transaction("settings", "readwrite");
+            const request = tx.objectStore("settings").put({ ...data, id: 1, updatedAt: new Date().toISOString() });
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error || new Error("Failed to save settings."));
+        });
+    }
+
+    function getAllRecords() {
+        return new Promise((resolve, reject) => {
+            const tx = state.db.transaction("attendance", "readonly");
+            const request = tx.objectStore("attendance").getAll();
+            request.onsuccess = () => {
+                const rows = request.result || [];
+                rows.sort((a, b) => a.classDate.localeCompare(b.classDate));
+                resolve(rows);
+            };
+            request.onerror = () => reject(request.error || new Error("Failed to read records."));
+        });
+    }
+
+    const getRecords = getAllRecords;
+
+    function addRecord(record) {
+        return new Promise((resolve, reject) => {
+            const tx = state.db.transaction("attendance", "readwrite");
+            const request = tx.objectStore("attendance").add({ ...record, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error || new Error("Failed to add record."));
+        });
+    }
+
+    function updateRecord(record) {
+        return new Promise((resolve, reject) => {
+            const tx = state.db.transaction("attendance", "readwrite");
+            const request = tx.objectStore("attendance").put({ ...record, updatedAt: new Date().toISOString() });
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error || new Error("Failed to update record."));
+        });
+    }
+
+    function deleteRecord(recordId) {
+        return new Promise((resolve, reject) => {
+            const tx = state.db.transaction("attendance", "readwrite");
+            const request = tx.objectStore("attendance").delete(Number(recordId));
+            request.onsuccess = () => resolve(true);
+            request.onerror = () => reject(request.error || new Error("Failed to delete record."));
+        });
+    }
+
+    function clearRecords() {
+        return new Promise((resolve, reject) => {
+            const tx = state.db.transaction("attendance", "readwrite");
+            const request = tx.objectStore("attendance").clear();
+            request.onsuccess = () => resolve(true);
+            request.onerror = () => reject(request.error || new Error("Failed to clear records."));
+        });
+    }
+
+    async function initApp() {
+        setLoading(true);
+
+        try {
+            await openDatabase();
+            state.settings = await getSettings();
+
+            if (!state.settings) {
+                state.settings = buildDefaultSettings();
+                await saveSettings(state.settings);
+            }
+
+            state.records = await getAllRecords();
+            rebuildRecordsIndex();
+            loadSettingsForm();
+            state.currentCalendarDate = new Date();
+            refreshAll();
+            showView("dashboard");
+        } catch (error) {
+            console.error("App initialization error:", error);
+            showToast("Unable to initialize app.", "danger");
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+        cacheRefs();
+        setupPwa();
+        setupEventDelegation();
+        await initApp();
+    });
+})();
+</script>
+
+
+</body>
+</html>
