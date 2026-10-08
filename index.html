@@ -364,7 +364,7 @@
         ===================================================== */
 
         .progress {
-            height: 12px;
+            height: 24px;
             border-radius: 99px;
             background: #e9eef0;
         }
@@ -374,51 +374,11 @@
             transition: width .4s ease;
         }
 
-
-        /* =====================================================
-           WEEK CARD
-        ===================================================== */
-
-        .week-card {
-            background: linear-gradient(
-                135deg,
-                #fffdf2,
-                #ffffff
-            );
-            border: 1px solid #f6e7a9;
-            border-radius: 18px;
-            padding: 20px;
-        }
-
-        .week-number {
-            font-size: 25px;
-            font-weight: 850;
-        }
-
-        .week-stats {
-            display: grid;
-            grid-template-columns:
-                repeat(3, 1fr);
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .week-stat {
-            text-align: center;
-            padding: 12px 6px;
-            border-radius: 13px;
-            background: #fff;
-            border: 1px solid #eee;
-        }
-
-        .week-stat strong {
-            display: block;
-            font-size: 22px;
-        }
-
-        .week-stat small {
-            color: #78909c;
-            font-size: 11px;
+        #progressPct {
+            line-height: 1;
+            color: #263238;
+            white-space: nowrap;
+            pointer-events: none;
         }
 
 
@@ -592,6 +552,40 @@
             color: #664d03;
         }
 
+        .legend-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            margin-right: 5px;
+            border-radius: 50%;
+            background: #198754;
+        }
+
+        .legend-dot.missed { background: #dc3545; }
+        .legend-dot.recovery { background: #ffc107; }
+        .legend-dot.today { background: #fff; border: 2px solid #ffc107; }
+
+        @media print {
+            @page { size: A4; margin: 16mm; }
+            body * { visibility: hidden !important; }
+            #attendanceReport, #attendanceReport * { visibility: visible !important; }
+            #attendanceReport {
+                display: block !important;
+                position: absolute;
+                inset: 0;
+                width: 100%;
+                margin: 0 !important;
+                box-shadow: none;
+                border: 0;
+            }
+            #attendanceReport .no-print { display: none !important; }
+            #attendanceReport .table-responsive { overflow: visible !important; }
+            #attendanceReport table { font-size: 9pt; }
+            #attendanceReport .summary-box { padding: 6px; }
+            #attendanceReport .summary-box strong { font-size: 14pt; }
+            #attendanceReport tr { break-inside: avoid; }
+        }
+
 
         /* =====================================================
            MONTH SUMMARY
@@ -638,47 +632,20 @@
            HISTORY
         ===================================================== */
 
-        .history-item {
-            display: grid;
-            grid-template-columns:
-                150px 1fr auto;
-            gap: 15px;
-            align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid #edf0f2;
+        .history-records td {
+            vertical-align: middle;
         }
 
-        .history-item:last-child {
-            border-bottom: 0;
+        .history-notes {
+            min-width: 120px;
+            max-width: 280px;
+            white-space: normal;
+            overflow-wrap: anywhere;
         }
 
-        .history-date strong {
-            display: block;
-            font-size: 14px;
-        }
-
-        .history-date small {
-            display: block;
-            color: #78909c;
-            margin-top: 3px;
-        }
-
-        .history-info {
-            min-width: 0;
-        }
-
-        .history-duration {
-            margin-left: 8px;
-            color: #607d8b;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .history-note {
-            color: #607d8b;
-            font-size: 12px;
-            margin-top: 6px;
-            word-break: break-word;
+        .fee-history-table td,
+        .fee-history-table th {
+            white-space: nowrap;
         }
 
         .history-actions {
@@ -837,6 +804,26 @@
                 border-radius: 9px;
             }
 
+            .calendar-toolbar {
+                gap: 6px;
+                padding: 10px;
+            }
+
+            .calendar-toolbar .month-title {
+                font-size: 16px;
+            }
+
+            .calendar-toolbar button {
+                min-width: 40px;
+                min-height: 40px;
+            }
+
+            #currentMonth {
+                min-width: auto;
+                min-height: 36px;
+                padding-inline: 8px;
+            }
+
             .day-number {
                 font-size: 12px;
             }
@@ -852,31 +839,13 @@
                 padding: 5px 1px;
             }
 
-            .history-item {
-                grid-template-columns: 1fr auto;
-                gap: 8px;
-            }
-
-            .history-info {
-                grid-column: 1 / -1;
-                grid-row: 2;
+            .history-notes {
+                min-width: 0;
+                max-width: none;
             }
 
             .history-actions {
-                grid-column: 2;
-                grid-row: 1;
-            }
-
-            .week-stats {
-                gap: 5px;
-            }
-
-            .week-stat {
-                padding: 10px 4px;
-            }
-
-            .week-stat strong {
-                font-size: 19px;
+                flex-wrap: wrap;
             }
 
             .app-card-body {
@@ -884,11 +853,37 @@
             }
 
             .quick-add {
-                width: 100%;
+                width: auto;
+                white-space: nowrap;
+                padding-inline: 10px;
             }
         }
 
         @media (max-width: 380px) {
+
+            .topbar-inner {
+                gap: 6px;
+            }
+
+            .brand {
+                gap: 5px;
+                min-width: 0;
+            }
+
+            .brand-icon {
+                width: 36px;
+                height: 36px;
+                flex: 0 0 36px;
+            }
+
+            .brand-title {
+                font-size: 13px;
+            }
+
+            .quick-add {
+                width: auto;
+                font-size: 13px;
+            }
 
             .calendar-day {
                 min-height: 59px;
@@ -1045,7 +1040,7 @@
                     </h1>
 
                     <p class="page-subtitle">
-                        Track classes, weekly targets and recovery.
+                        Track course progress and attendance.
                     </p>
 
                 </div>
@@ -1072,12 +1067,16 @@
                     <div class="student-meta">
 
                         <span class="meta-chip">
-                            🎯 2 Classes / Week
+                            🎯 <span id="classesPerWeekLabel">2 Classes / Week</span>
                         </span>
 
+                        <span class="meta-chip" id="courseSummaryChip">104 planned classes</span>
+
                         <span class="meta-chip">
-                            ♟️ Chess Practice
+                            ♟️ <span id="academyLabel">Chess Practice</span>
                         </span>
+
+                        <span class="meta-chip d-none" id="studentAgeLabel"></span>
 
                     </div>
 
@@ -1169,14 +1168,14 @@
                             </div>
 
                             <div class="stat-label">
-                                Progress
+                                Total Weeks
                             </div>
 
                             <div
-                                id="progressPct"
+                                id="totalWeeks"
                                 class="stat-value"
                             >
-                                0%
+                                0
                             </div>
 
                         </div>
@@ -1204,14 +1203,18 @@
 
                     <div class="app-card-body">
 
-                        <div class="progress">
+                        <div class="progress position-relative">
 
                             <div
                                 id="progressBar"
                                 class="progress-bar bg-success"
                                 role="progressbar"
                                 style="width:0%"
+                                aria-valuemin="0"
+                                aria-valuemax="100"
+                                aria-valuenow="0"
                             ></div>
+                            <span id="progressPct" class="position-absolute top-50 start-50 translate-middle fw-bold small" aria-live="polite">0%</span>
 
                         </div>
 
@@ -1219,146 +1222,24 @@
 
                 </div>
 
-
-                <div class="row g-4">
-
-
-                    <!-- Weekly Progress -->
-
-                    <div class="col-lg-7">
-
-                        <div class="week-card h-100">
-
-                            <div class="d-flex justify-content-between align-items-start">
-
-                                <div>
-
-                                    <div class="text-muted small">
-                                        Current Week
-                                    </div>
-
-                                    <div
-                                        id="weekLabel"
-                                        class="week-number"
-                                    >
-                                        Week 1
-                                    </div>
-
-                                </div>
-
-                                <span class="badge text-bg-success">
-                                    Weekly Target
-                                </span>
-
-                            </div>
-
-
-                            <div class="week-stats">
-
-                                <div class="week-stat">
-
-                                    <strong
-                                        id="weekTarget"
-                                    >
-                                        2
-                                    </strong>
-
-                                    <small>
-                                        Target
-                                    </small>
-
-                                </div>
-
-
-                                <div class="week-stat">
-
-                                    <strong
-                                        id="weekDone"
-                                        class="text-success"
-                                    >
-                                        0
-                                    </strong>
-
-                                    <small>
-                                        Done
-                                    </small>
-
-                                </div>
-
-
-                                <div class="week-stat">
-
-                                    <strong
-                                        id="weekRemaining"
-                                        class="text-warning"
-                                    >
-                                        2
-                                    </strong>
-
-                                    <small>
-                                        Remaining
-                                    </small>
-
-                                </div>
-
-                            </div>
-
+                <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
+                    <h2 class="h6 fw-bold mb-0">📊 Monthly Class Summary</h2>
+                    <button type="button" id="monthlySummaryToggle" class="btn btn-sm btn-outline-success"
+                        aria-controls="dashboardMonthlySummaryCard" aria-expanded="false">
+                        Show
+                    </button>
+                </div>
+                <div id="dashboardMonthlySummaryCard" class="app-card mb-4 d-none">
+                    <div class="app-card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle mb-0">
+                                <thead>
+                                    <tr><th>Month</th><th>Base Planned</th><th>Carry Forward</th><th>Planned</th><th>Completed</th><th>Remaining</th></tr>
+                                </thead>
+                                <tbody id="dashboardMonthlySummary"></tbody>
+                            </table>
                         </div>
-
                     </div>
-
-
-                    <!-- Hours -->
-
-                    <div class="col-lg-5">
-
-                        <div class="app-card h-100">
-
-                            <div class="app-card-header">
-
-                                <h3 class="app-card-title">
-                                    ⏱️ Practice Hours
-                                </h3>
-
-                            </div>
-
-                            <div class="app-card-body">
-
-                                <div class="d-flex justify-content-between mb-2">
-
-                                    <span class="text-muted">
-                                        Completed
-                                    </span>
-
-                                    <strong
-                                        id="hoursDone"
-                                        class="text-success"
-                                    >
-                                        0 min
-                                    </strong>
-
-                                </div>
-
-                                <div class="d-flex justify-content-between">
-
-                                    <span class="text-muted">
-                                        Remaining
-                                    </span>
-
-                                    <strong
-                                        id="hoursRemaining"
-                                    >
-                                        0 min
-                                    </strong>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
                 </div>
 
 
@@ -1431,6 +1312,8 @@
                             ›
                         </button>
 
+                        <button type="button" id="currentMonth" class="btn btn-sm btn-outline-secondary">Today</button>
+
                     </div>
 
 
@@ -1472,6 +1355,13 @@
                         class="calendar-grid pt-0"
                     ></div>
 
+                    <div class="calendar-legend px-3 py-2 d-flex flex-wrap gap-3 small text-muted">
+                        <span><i class="legend-dot completed"></i>Completed</span>
+                        <span><i class="legend-dot missed"></i>Missed</span>
+                        <span><i class="legend-dot recovery"></i>Recovery</span>
+                        <span><i class="legend-dot today"></i>Today</span>
+                    </div>
+
 
                     <div
                         id="monthSummary"
@@ -1492,7 +1382,7 @@
                 class="app-view d-none"
             >
 
-                <div class="page-header d-flex justify-content-between align-items-center gap-3">
+                <div class="page-header d-flex justify-content-between align-items-start gap-3 flex-wrap">
 
                     <div>
 
@@ -1506,27 +1396,125 @@
 
                     </div>
 
-                    <button
-                        type="button"
-                        id="historyAdd"
-                        class="btn btn-success"
-                    >
-                        + Add Class
-                    </button>
+                    <div class="d-flex flex-wrap gap-2">
+                        <button type="button" id="reportToggle" class="btn btn-outline-secondary" aria-label="View attendance report">👁 View Attendance</button>
+                        <button type="button" id="exportBackup" class="btn btn-outline-primary" aria-label="Download JSON backup">⬇ Download JSON</button>
+                        <button type="button" id="importBackup" class="btn btn-outline-primary" aria-label="Import JSON backup">⬆ Import JSON</button>
+                        <input type="file" id="backupFile" accept="application/json,.json" class="d-none">
+                    </div>
 
                 </div>
 
+                <div id="historyOverview" class="app-card mb-4">
+                    <div class="app-card-body">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <h2 class="h6 text-muted">Student</h2>
+                                <div class="fw-semibold" id="historyStudentName">Chess Student</div>
+                                <div class="small text-muted mt-2">Academy</div>
+                                <div class="fw-semibold" id="historyAcademyName">-</div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <h2 class="h6 text-muted">Attendance Report</h2>
+                                <div class="fw-semibold" id="historyReportPeriod">All Months</div>
+                                <div class="small text-muted mt-2">Course</div>
+                                <div class="fw-semibold" id="historyCourseDates">-</div>
+                                <div class="small text-muted mt-2">
+                                    Classes per week: <strong id="historyClassesPerWeek">0</strong>
+                                    <span class="mx-1">·</span>
+                                    Total planned: <strong id="historyTotalPlanned">0</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="app-card mb-4">
+                    <div class="app-card-header"><h2 class="app-card-title">Fees Summary</h2></div>
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0">
+                            <tbody>
+                                <tr><th>Original Fees</th><td id="historyOriginalFees">₹0</td></tr>
+                                <tr><th>Discount</th><td id="historyDiscountPercent">0%</td></tr>
+                                <tr><th>Discount Amount</th><td id="historyDiscountAmount">₹0</td></tr>
+                                <tr class="table-success"><th>Total Fees Paid</th><td id="historyFeesPaid">₹0</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
                 <div class="app-card">
-
+                    <div class="app-card-header">
+                        <div class="row g-2 align-items-center">
+                            <div class="col-12 col-md">
+                                <h3 class="app-card-title mb-0">Class Records</h3>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="visually-hidden" for="historyMonthFilter">Filter history by month</label>
+                                <select id="historyMonthFilter" class="form-select" aria-label="Filter history by month">
+                                    <option value="all">All Months</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                     <div class="app-card-body">
 
                         <div
                             id="historyList"
                         ></div>
+                        <nav id="historyPagination" class="mt-3" aria-label="Class history pagination"></nav>
 
                     </div>
+                </div>
 
+                <div id="attendanceReport" class="app-card mt-4 d-none">
+                    <div class="app-card-header no-print">
+                        <h3 class="app-card-title mb-3">Attendance Report</h3>
+                        <div class="d-flex flex-column flex-md-row gap-2 align-items-stretch align-items-md-center">
+                            <label class="visually-hidden" for="reportMonthFilter">Filter attendance report by month</label>
+                            <select id="reportMonthFilter" class="form-select flex-grow-1" aria-label="Filter attendance report by month">
+                                <option value="all">All Months</option>
+                            </select>
+                            <div class="d-flex flex-wrap gap-2">
+                                <button type="button" id="printReport" class="btn btn-outline-secondary">🖨 Print</button>
+                                <button type="button" id="downloadPdf" class="btn btn-outline-danger">📄 Download PDF</button>
+                                <button type="button" id="downloadExcel" class="btn btn-outline-success">📊 Download Excel</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="app-card-body">
+                        <div id="reportStudentInfo" class="row g-3 mb-3"></div>
+                        <div class="app-card mb-3">
+                            <div class="app-card-header">
+                                <h4 class="app-card-title">Fees Summary</h4>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-sm align-middle mb-0">
+                                    <tbody>
+                                        <tr><th>Original Fees</th><td id="reportOriginalFees">₹0</td></tr>
+                                        <tr><th>Discount</th><td id="reportDiscountPercent">0%</td></tr>
+                                        <tr><th>Discount Amount</th><td id="reportDiscountAmount">₹0</td></tr>
+                                        <tr class="table-success"><th>Total Fees Paid</th><td id="reportFees">₹0</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6 col-lg"><div class="summary-box"><small>Planned</small><strong id="reportPlanned">0</strong></div></div>
+                            <div class="col-6 col-lg"><div class="summary-box success-box"><small>Attended</small><strong id="reportCompleted">0</strong></div></div>
+                            <div class="col-6 col-lg"><div class="summary-box danger-box"><small>Missed</small><strong id="reportMissed">0</strong></div></div>
+                            <div class="col-6 col-lg"><div class="summary-box warning-box"><small>Remaining</small><strong id="reportRemaining">0</strong></div></div>
+                            <div class="col-6 col-lg"><div class="summary-box"><small>Attendance</small><strong id="reportAttendancePct">0%</strong></div></div>
+                            <div class="col-6 col-lg"><div class="summary-box"><small>Recorded</small><strong id="reportTotal">0</strong></div></div>
+                            <div class="col-6 col-lg"><div class="summary-box"><small>Completed Hours</small><strong id="reportHours">0 min</strong></div></div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle history-records">
+                                <thead><tr><th>Date</th><th>Status</th><th>Start Time</th><th>Duration</th><th>Notes</th></tr></thead>
+                                <tbody id="reportRows"></tbody>
+                            </table>
+                        </div>
+                        <nav id="reportPagination" class="mt-3 no-print" aria-label="Attendance report pagination"></nav>
+                    </div>
                 </div>
 
             </section>
@@ -1586,6 +1574,16 @@
                                         placeholder="Enter student name"
                                     >
 
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label" for="academyName">Academy</label>
+                                    <input type="text" id="academyName" class="form-control" placeholder="Enter academy name">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label" for="dateOfBirth">Date of Birth</label>
+                                    <input type="date" id="dateOfBirth" class="form-control">
                                 </div>
 
 
@@ -1792,9 +1790,43 @@
                                     >
 
                                     <div class="form-text">
-                                        Default: Start Date + 365 days
+                                        Default: Same calendar date next year
                                     </div>
 
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label" for="totalPlannedClasses">Total Planned Classes</label>
+                                    <input
+                                        type="number"
+                                        id="totalPlannedClasses"
+                                        class="form-control"
+                                        min="0"
+                                        step="1"
+                                        required
+                                    >
+                                </div>
+
+                                <div class="col-12">
+                                    <h4 class="app-card-title mb-0 mt-2">Course Fees</h4>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label" for="originalFees">Original Fees (₹)</label>
+                                    <input type="number" id="originalFees" class="form-control" min="0" step="0.01" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label" for="discountPercent">Discount (%)</label>
+                                    <input type="number" id="discountPercent" class="form-control" min="0" max="100" step="0.01" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label" for="feesPaid">Fees Paid (₹)</label>
+                                    <input type="number" id="feesPaid" class="form-control" readonly aria-readonly="true">
+                                    <div class="form-text">Calculated automatically from discount.</div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="alert alert-light border mb-0">
+                                        Discount Amount: <strong id="discountAmountPreview">₹0</strong>
+                                    </div>
                                 </div>
 
                             </div>
@@ -1816,6 +1848,23 @@
                     </div>
 
                 </form>
+
+                <div class="app-card mb-4">
+                    <div class="app-card-header">
+                        <h3 class="app-card-title">Fees History</h3>
+                    </div>
+                    <div class="app-card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle fee-history-table mb-0">
+                                <thead>
+                                    <tr><th>Date</th><th>Original Fees</th><th>Discount</th><th>Discount Amount</th><th>Fees Paid</th></tr>
+                                </thead>
+                                <tbody id="feesHistoryRows"></tbody>
+                            </table>
+                        </div>
+                        <div id="feesHistoryEmpty" class="text-center text-muted py-3 d-none">No fee updates recorded yet.</div>
+                    </div>
+                </div>
 
 
                 <!-- Danger Zone -->
@@ -2161,14 +2210,22 @@
     "use strict";
 
     const DB_NAME = "ChessClassTrackerDB";
-    const DB_VERSION = 1;
+    const DB_VERSION = 2;
+    const MONTHLY_SUMMARY_PREFERENCE = "chessTracker.monthlySummaryVisible";
 
     const state = {
         db: null,
         settings: null,
         records: [],
+        feesHistory: [],
         recordsByDate: new Map(),
-        currentCalendarDate: new Date()
+        monthlyBalancesCache: null,
+        historyMonthFilter: "all",
+        historyPage: 1,
+        reportMonthFilter: "all",
+        reportPage: 1,
+        currentCalendarDate: new Date(),
+        monthlySummaryVisible: false
     };
 
     const refs = {};
@@ -2217,14 +2274,28 @@
         ].join("-");
     }
 
-    function addDays(iso, days) {
-        const d = dateObj(iso);
-        d.setDate(d.getDate() + Number(days));
-        return dateToISO(d);
+    function addYear(iso) {
+        const date = dateObj(iso);
+        const month = date.getMonth();
+        const day = date.getDate();
+        date.setDate(1);
+        date.setFullYear(date.getFullYear() + 1);
+        date.setMonth(month);
+        date.setDate(Math.min(day, new Date(date.getFullYear(), month + 1, 0).getDate()));
+        return dateToISO(date);
     }
 
     function daysBetween(start, end) {
         return Math.floor((dateObj(end) - dateObj(start)) / 86400000);
+    }
+
+    function calculateAge(dateOfBirth, asOf = new Date()) {
+        if (!dateOfBirth) return "";
+        const birth = dateObj(dateOfBirth);
+        let age = asOf.getFullYear() - birth.getFullYear();
+        const birthdayThisYear = new Date(asOf.getFullYear(), birth.getMonth(), birth.getDate());
+        if (asOf < birthdayThisYear) age -= 1;
+        return Math.max(0, age);
     }
 
     function formatDate(iso) {
@@ -2248,6 +2319,14 @@
         return mins ? `${hours} hr ${mins} min` : `${hours} hr`;
     }
 
+    function formatCurrency(amount) {
+        return new Intl.NumberFormat("en-IN", {
+            style: "currency",
+            currency: "INR",
+            maximumFractionDigits: 2
+        }).format(Number(amount) || 0);
+    }
+
     function escapeHTML(value) {
         return String(value ?? "")
             .replaceAll("&", "&amp;")
@@ -2259,30 +2338,138 @@
 
     function buildDefaultSettings() {
         const start = todayISO();
+        const end = addYear(start);
         return {
             id: 1,
             studentName: "",
+            academyName: "",
+            dateOfBirth: "",
             studentAge: "",
             studentMobile: "",
             classesPerWeek: 2,
             durationMinutes: 120,
             defaultTime: "15:00",
             startDate: start,
-            endDate: addDays(start, 365)
+            endDate: end,
+            totalPlannedClasses: getInitialTotalPlanned({ startDate: start, endDate: end, classesPerWeek: 2 }),
+            originalFees: 0,
+            discountPercent: 0,
+            discountAmount: 0,
+            feesPaid: 0
         };
+    }
+
+    function getCourseWeeksForSettings(settings) {
+        if (!settings?.startDate || !settings?.endDate) return 0;
+        const diff = daysBetween(settings.startDate, settings.endDate);
+        if (diff <= 0) return 1;
+        return addYear(settings.startDate) === settings.endDate
+            ? 52
+            : Math.ceil((diff + 1) / 7);
+    }
+
+    function getInitialTotalPlanned(settings) {
+        return Math.max(1, getCourseWeeksForSettings(settings) * Number(settings.classesPerWeek || 2));
+    }
+
+    function normalizeSettings(settings) {
+        const normalized = { ...buildDefaultSettings(), ...settings, id: 1 };
+        const totalPlannedClasses = Number(settings?.totalPlannedClasses);
+        normalized.totalPlannedClasses = Number.isInteger(totalPlannedClasses) && totalPlannedClasses >= 0
+            ? totalPlannedClasses
+            : getInitialTotalPlanned(normalized);
+        const legacyFeesPaid = Number(settings?.feesPaid);
+        const originalFees = Number(settings?.originalFees);
+        normalized.originalFees = Number.isFinite(originalFees) && originalFees >= 0
+            ? originalFees
+            : Number.isFinite(legacyFeesPaid) && legacyFeesPaid > 0 ? legacyFeesPaid : 0;
+        const discountPercent = Number(settings?.discountPercent);
+        normalized.discountPercent = Number.isFinite(discountPercent)
+            ? Math.min(100, Math.max(0, discountPercent))
+            : 0;
+        Object.assign(normalized, calculateFees(normalized.originalFees, normalized.discountPercent));
+        return normalized;
+    }
+
+    function calculateFees(originalFees, discountPercent) {
+        const original = Number.isFinite(Number(originalFees)) ? Math.max(0, Number(originalFees)) : 0;
+        const discount = Number.isFinite(Number(discountPercent))
+            ? Math.min(100, Math.max(0, Number(discountPercent)))
+            : 0;
+        const discountAmount = Math.round((original * discount / 100) * 100) / 100;
+        return {
+            originalFees: original,
+            discountPercent: discount,
+            discountAmount,
+            feesPaid: Math.round((original - discountAmount) * 100) / 100
+        };
+    }
+
+    function getFeeHistorySnapshot(settings = state.settings) {
+        return {
+            date: todayISO(),
+            originalFees: Number(settings?.originalFees) || 0,
+            discountPercent: Number(settings?.discountPercent) || 0,
+            discountAmount: Number(settings?.discountAmount) || 0,
+            feesPaid: Number(settings?.feesPaid) || 0
+        };
+    }
+
+    function renderFeesHistory() {
+        const body = document.getElementById("feesHistoryRows");
+        const empty = document.getElementById("feesHistoryEmpty");
+        if (!body || !empty) return;
+        const fragment = document.createDocumentFragment();
+        for (const entry of state.feesHistory) {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${formatDate(entry.date)}</td>
+                <td>${formatCurrency(entry.originalFees)}</td>
+                <td>${Number(entry.discountPercent)}%</td>
+                <td>${formatCurrency(entry.discountAmount)}</td>
+                <td class="fw-semibold text-success">${formatCurrency(entry.feesPaid)}</td>
+            `;
+            fragment.appendChild(row);
+        }
+        body.replaceChildren(fragment);
+        empty.classList.toggle("d-none", state.feesHistory.length > 0);
+    }
+
+    function updateFeesPreview() {
+        const originalField = document.getElementById("originalFees");
+        const discountField = document.getElementById("discountPercent");
+        if (!originalField || !discountField) return calculateFees(0, 0);
+        const fees = calculateFees(originalField.value, discountField.value);
+        if (originalField.value !== "" && Number(originalField.value) < 0) originalField.value = "0";
+        if (discountField.value !== "") discountField.value = String(fees.discountPercent);
+        document.getElementById("discountAmountPreview").textContent = formatCurrency(fees.discountAmount);
+        document.getElementById("feesPaid").value = fees.feesPaid.toFixed(2);
+        return fees;
     }
 
     function setSettingsFromForm() {
         const startDate = document.getElementById("startDate").value;
         let endDate = document.getElementById("endDate").value;
+        const totalPlannedClasses = Number(document.getElementById("totalPlannedClasses").value);
+        const fees = updateFeesPreview();
 
+        if (!Number.isInteger(totalPlannedClasses) || totalPlannedClasses < 0) {
+            showToast("Total planned classes must be a whole number of zero or more.", "warning");
+            return null;
+        }
         if (!startDate) {
             showToast("Please select start date.", "warning");
             return null;
         }
 
+        const dateOfBirth = document.getElementById("dateOfBirth").value;
+        if (dateOfBirth && dateOfBirth > todayISO()) {
+            showToast("Date of birth cannot be in the future.", "warning");
+            return null;
+        }
+
         if (!endDate) {
-            endDate = addDays(startDate, 365);
+            endDate = addYear(startDate);
         }
 
         if (dateObj(endDate) < dateObj(startDate)) {
@@ -2291,15 +2478,22 @@
         }
 
         state.settings = {
+            ...state.settings,
             id: 1,
             studentName: document.getElementById("studentName").value.trim(),
-            studentAge: document.getElementById("studentAge").value.trim(),
+            academyName: document.getElementById("academyName").value.trim(),
+            dateOfBirth,
+            studentAge: dateOfBirth
+                ? String(calculateAge(dateOfBirth))
+                : document.getElementById("studentAge").value.trim(),
             studentMobile: document.getElementById("studentMobile").value.trim(),
             classesPerWeek: Number(document.getElementById("classesPerWeek").value) || 2,
             durationMinutes: Number(document.getElementById("durationMinutes").value) || 120,
             defaultTime: document.getElementById("defaultTime").value || "15:00",
             startDate,
-            endDate
+            endDate,
+            totalPlannedClasses,
+            ...fees
         };
 
         return state.settings;
@@ -2308,26 +2502,29 @@
     function loadSettingsForm() {
         if (!state.settings) return;
         document.getElementById("studentName").value = state.settings.studentName || "";
+        document.getElementById("academyName").value = state.settings.academyName || "";
+        document.getElementById("dateOfBirth").value = state.settings.dateOfBirth || "";
         document.getElementById("studentAge").value = state.settings.studentAge || "";
+        document.getElementById("studentAge").readOnly = Boolean(state.settings.dateOfBirth);
         document.getElementById("studentMobile").value = state.settings.studentMobile || "";
         document.getElementById("classesPerWeek").value = state.settings.classesPerWeek || 2;
         document.getElementById("durationMinutes").value = state.settings.durationMinutes || 120;
         document.getElementById("defaultTime").value = state.settings.defaultTime || "15:00";
         document.getElementById("startDate").value = state.settings.startDate;
         document.getElementById("endDate").value = state.settings.endDate;
+        document.getElementById("totalPlannedClasses").value = state.settings.totalPlannedClasses;
+        document.getElementById("originalFees").value = state.settings.originalFees;
+        document.getElementById("discountPercent").value = state.settings.discountPercent;
+        document.getElementById("feesPaid").value = state.settings.feesPaid;
+        document.getElementById("discountAmountPreview").textContent = formatCurrency(state.settings.discountAmount);
     }
 
     function getMonthKey(date) {
         return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
     }
 
-    function getMonthRange(monthDate) {
-        const year = monthDate.getFullYear();
-        const month = monthDate.getMonth();
-        return {
-            first: new Date(year, month, 1),
-            last: new Date(year, month + 1, 0)
-        };
+    function getMonthLabel(monthKey) {
+        return dateObj(`${monthKey}-01`).toLocaleDateString("en-IN", { month: "long", year: "numeric" });
     }
 
     function isDateInCourse(date) {
@@ -2337,26 +2534,7 @@
 
     function getCourseWeeks() {
         if (!state.settings) return 0;
-        const diff = daysBetween(state.settings.startDate, state.settings.endDate);
-        return Math.floor(diff / 7) + 1;
-    }
-
-    function getTotalTargetClasses() {
-        if (!state.settings) return 0;
-        return getCourseWeeks() * Number(state.settings.classesPerWeek || 2);
-    }
-
-    function monthTarget(monthDate) {
-        if (!state.settings) return 0;
-        const { first, last } = getMonthRange(monthDate);
-        const monthStart = dateToISO(first);
-        const monthEnd = dateToISO(last);
-        const overlapStart = monthStart > state.settings.startDate ? monthStart : state.settings.startDate;
-        const overlapEnd = monthEnd < state.settings.endDate ? monthEnd : state.settings.endDate;
-        if (overlapStart > overlapEnd) return 0;
-        const overlapDays = daysBetween(overlapStart, overlapEnd) + 1;
-        const weeklyTarget = Number(state.settings.classesPerWeek || 2);
-        return Math.ceil((overlapDays / 7) * weeklyTarget);
+        return getCourseWeeksForSettings(state.settings);
     }
 
     function rebuildRecordsIndex() {
@@ -2370,172 +2548,273 @@
         return state.recordsByDate.get(date) || null;
     }
 
-    function getCompletedRecords() {
-        return state.records.filter((record) => record.status === "completed");
+    function calculateCourseProgress() {
+        const totalPlanned = Number(state.settings?.totalPlannedClasses || 0);
+        const completed = state.records.filter((record) => record.status === "completed").length;
+        const remaining = Math.max(totalPlanned - completed, 0);
+        const percentage = totalPlanned > 0
+            ? Math.min((completed / totalPlanned) * 100, 100)
+            : 0;
+        return { totalPlanned, completed, remaining, percentage };
     }
 
-    function getCompletedCount() {
-        return getCompletedRecords().length;
+    function getCourseMonths(settings = state.settings) {
+        if (!settings?.startDate || !settings?.endDate) return [];
+        const startDate = dateObj(settings.startDate);
+        const endDate = dateObj(settings.endDate);
+        const months = [];
+        let offset = 0;
+        while (true) {
+            const cursor = new Date(startDate.getFullYear(), startDate.getMonth() + offset, 1);
+            const lastCourseMonth = cursor.getFullYear() === endDate.getFullYear()
+                && cursor.getMonth() === endDate.getMonth();
+            if (lastCourseMonth && offset > 0 && endDate.getDate() <= startDate.getDate()) break;
+            if (cursor > endDate) break;
+            months.push({
+                key: getMonthKey(cursor),
+                year: cursor.getFullYear(),
+                month: cursor.getMonth()
+            });
+            if (lastCourseMonth) break;
+            offset += 1;
+        }
+        return months;
     }
 
-    function calculateStats() {
-        const target = getTotalTargetClasses();
-        const completed = getCompletedCount();
-        const remaining = Math.max(0, target - completed);
-        const percentage = target > 0 ? Math.min(100, Math.round((completed / target) * 100)) : 0;
-        return { target, completed, remaining, percentage };
+    function calculateBaseMonthlyPlan(settings = state.settings) {
+        const months = getCourseMonths(settings);
+        const totalPlanned = Math.max(0, Math.trunc(Number(settings?.totalPlannedClasses) || 0));
+        if (!months.length) return new Map();
+        const perMonth = Math.floor(totalPlanned / months.length);
+        const remainder = totalPlanned % months.length;
+        return new Map(months.map((month, index) => [month.key, perMonth + (index < remainder ? 1 : 0)]));
     }
 
-    function getCurrentWeekInfo() {
-        if (!state.settings) return null;
-        const today = todayISO();
-        const currentDate = today < state.settings.startDate ? state.settings.startDate : today > state.settings.endDate ? state.settings.endDate : today;
-        const daysSinceStart = daysBetween(state.settings.startDate, currentDate);
-        const weekIndex = Math.floor(daysSinceStart / 7) + 1;
-        const weekStart = addDays(state.settings.startDate, (weekIndex - 1) * 7);
-        let weekEnd = addDays(weekStart, 6);
-        if (weekEnd > state.settings.endDate) weekEnd = state.settings.endDate;
-
-        const weekRecords = state.records.filter((record) => record.classDate >= weekStart && record.classDate <= weekEnd);
-        const completed = weekRecords.filter((record) => record.status === "completed").length;
-        const target = Number(state.settings.classesPerWeek || 2);
-        const remaining = Math.max(0, target - completed);
-        const extra = Math.max(0, completed - target);
-
-        return { weekIndex, weekStart, weekEnd, target, completed, remaining, extra };
-    }
-
-    function getMonthlyBalances() {
+    function calculateMonthlyPlan() {
         if (!state.settings) return [];
+        if (state.monthlyBalancesCache) return state.monthlyBalancesCache;
 
         const completedByMonth = new Map();
+        const missedByMonth = new Map();
         for (const record of state.records) {
-            if (record.status !== "completed") continue;
             const key = getMonthKey(dateObj(record.classDate));
-            completedByMonth.set(key, (completedByMonth.get(key) || 0) + 1);
+            if (record.status === "completed") completedByMonth.set(key, (completedByMonth.get(key) || 0) + 1);
+            if (record.status === "missed") missedByMonth.set(key, (missedByMonth.get(key) || 0) + 1);
         }
 
-        const start = dateObj(state.settings.startDate);
-        const courseEnd = dateObj(state.settings.endDate);
+        const courseMonths = getCourseMonths();
+        const baseByMonth = calculateBaseMonthlyPlan();
         const result = [];
         let carry = 0;
-        let cursor = new Date(start.getFullYear(), start.getMonth(), 1);
-
-        while (cursor <= courseEnd) {
-            const key = getMonthKey(cursor);
-            const target = monthTarget(cursor);
-            const completed = completedByMonth.get(key) || 0;
-            const required = Math.max(0, target + carry);
-            const balance = completed - required;
-            const missed = Math.max(0, -balance);
-            const surplus = Math.max(0, balance);
-
+        for (const month of courseMonths) {
+            const basePlanned = baseByMonth.get(month.key) || 0;
+            const planned = basePlanned + carry;
+            const completed = completedByMonth.get(month.key) || 0;
+            const missed = missedByMonth.get(month.key) || 0;
+            const remaining = Math.max(0, planned - completed);
             result.push({
-                key,
-                year: cursor.getFullYear(),
-                month: cursor.getMonth(),
-                target,
-                carryIn: carry,
-                required,
+                ...month,
+                basePlanned,
+                carryForward: carry,
+                target: planned,
+                planned,
                 completed,
                 missed,
-                surplus,
-                carryOut: missed > 0 ? missed : -surplus
+                remaining,
+                carryOut: remaining
             });
-
-            carry = missed > 0 ? missed : -surplus;
-            cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
+            carry = remaining;
         }
 
+        state.monthlyBalancesCache = result;
         return result;
     }
 
-    function getRecoveryInfo() {
-        if (!state.settings) return null;
+    function getMonthlyBalances() {
+        return calculateMonthlyPlan();
+    }
+
+    function getRecordsByMonth(month) {
+        const records = month === "all"
+            ? [...state.records]
+            : state.records.filter((record) => getMonthKey(dateObj(record.classDate)) === month);
+        return records.sort((a, b) => b.classDate.localeCompare(a.classDate));
+    }
+
+    function calculateMonthlySummary(month) {
         const balances = getMonthlyBalances();
-        const now = new Date();
-        const currentIndex = balances.findIndex((month) => month.year === now.getFullYear() && month.month === now.getMonth());
-        if (currentIndex < 0) return null;
-
-        const current = balances[currentIndex];
-        const previous = currentIndex > 0 ? balances[currentIndex - 1] : null;
-        const today = todayISO();
-        const remainingDays = Math.max(0, daysBetween(today > state.settings.startDate ? today : state.settings.startDate, state.settings.endDate));
-        const futureWeeks = Math.max(1, Math.ceil(remainingDays / 7));
-        const totalDeficit = balances.reduce((sum, month) => sum + month.missed, 0);
-        const extraPerWeek = totalDeficit > 0 ? Math.ceil(totalDeficit / futureWeeks) : 0;
-
+        const selectedBalances = month === "all"
+            ? balances
+            : balances.filter((item) => item.key === month);
+        const records = getRecordsByMonth(month);
+        const completed = records.filter((record) => record.status === "completed").length;
+        const missed = records.filter((record) => record.status === "missed").length;
+        const planned = month === "all"
+            ? Number(state.settings?.totalPlannedClasses) || 0
+            : selectedBalances.reduce((total, item) => total + item.planned, 0);
+        const remaining = Math.max(planned - completed, 0);
+        const attendancePercentage = planned > 0
+            ? Math.min((completed / planned) * 100, 100)
+            : 0;
         return {
-            current,
-            previous,
-            carryIn: current.carryIn,
-            totalDeficit,
-            futureWeeks,
-            extraPerWeek
+            planned,
+            completed,
+            missed,
+            remaining,
+            attendancePercentage,
+            records,
+            completedMinutes: records
+                .filter((record) => record.status === "completed")
+                .reduce((total, record) => total + Number(record.actualDuration || 0), 0)
         };
+    }
+
+    function getAvailableMonths() {
+        const months = new Set(getMonthlyBalances().map((item) => item.key));
+        for (const record of state.records) {
+            if (record.classDate) months.add(record.classDate.slice(0, 7));
+        }
+        return [...months].sort((a, b) => b.localeCompare(a));
+    }
+
+    function populateMonthFilter(selectId, selectedMonth) {
+        const select = document.getElementById(selectId);
+        if (!select) return selectedMonth;
+        const availableMonths = getAvailableMonths();
+        const month = selectedMonth === "all" || availableMonths.includes(selectedMonth)
+            ? selectedMonth
+            : "all";
+        const fragment = document.createDocumentFragment();
+        const allOption = document.createElement("option");
+        allOption.value = "all";
+        allOption.textContent = "All Months";
+        fragment.appendChild(allOption);
+        for (const monthKey of availableMonths) {
+            const option = document.createElement("option");
+            option.value = monthKey;
+            option.textContent = getMonthLabel(monthKey);
+            fragment.appendChild(option);
+        }
+        select.replaceChildren(fragment);
+        select.value = month;
+        return month;
+    }
+
+    function renderPagination(containerId, totalItems, currentPage, target) {
+        const container = document.getElementById(containerId);
+        if (!container) return 1;
+        const pageCount = Math.ceil(totalItems / 10);
+        const page = Math.min(Math.max(1, currentPage), Math.max(1, pageCount));
+        container.replaceChildren();
+        container.classList.toggle("d-none", pageCount <= 1);
+        if (pageCount <= 1) return page;
+
+        const list = document.createElement("ul");
+        list.className = "pagination justify-content-center flex-wrap mb-0";
+        const addPage = (label, pageNumber, { disabled = false, active = false } = {}) => {
+            const item = document.createElement("li");
+            item.className = `page-item${disabled ? " disabled" : ""}${active ? " active" : ""}`;
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = `page-link${active ? " bg-success border-success text-white" : ""}`;
+            button.textContent = label;
+            button.dataset.paginationTarget = target;
+            button.dataset.page = pageNumber;
+            button.disabled = disabled;
+            if (active) button.setAttribute("aria-current", "page");
+            item.appendChild(button);
+            list.appendChild(item);
+        };
+
+        addPage("Previous", page - 1, { disabled: page === 1 });
+        const pages = [...new Set([1, page - 1, page, page + 1, pageCount])]
+            .filter((pageNumber) => pageNumber >= 1 && pageNumber <= pageCount)
+            .sort((a, b) => a - b);
+        let previous = 0;
+        for (const pageNumber of pages) {
+            if (pageNumber - previous > 1) {
+                const gap = document.createElement("li");
+                gap.className = "page-item disabled";
+                gap.innerHTML = '<span class="page-link">…</span>';
+                list.appendChild(gap);
+            }
+            addPage(String(pageNumber), pageNumber, { active: pageNumber === page });
+            previous = pageNumber;
+        }
+        addPage("Next", page + 1, { disabled: page === pageCount });
+        container.appendChild(list);
+        return page;
     }
 
     function renderDashboard() {
         if (!state.settings) return;
 
-        const stats = calculateStats();
-        const week = getCurrentWeekInfo();
-        const recovery = getRecoveryInfo();
+        const stats = calculateCourseProgress();
+        const now = new Date();
+        const recovery = getMonthlyBalances().find((month) => month.year === now.getFullYear() && month.month === now.getMonth()) || null;
 
         document.getElementById("dashStudent").textContent = state.settings.studentName || "Chess Student";
-        document.getElementById("dateRange").textContent = `${formatDate(state.settings.startDate)} → ${formatDate(state.settings.endDate)}`;
-        document.getElementById("totalClasses").textContent = stats.target;
+        document.getElementById("dateRange").textContent = `Course: ${formatDate(state.settings.startDate)} → ${formatDate(state.settings.endDate)}`;
+        document.getElementById("classesPerWeekLabel").textContent = `${Number(state.settings.classesPerWeek || 2)} Classes / Week`;
+        document.getElementById("courseSummaryChip").textContent = `${stats.totalPlanned} planned classes`;
+        document.getElementById("academyLabel").textContent = state.settings.academyName || "Chess Practice";
+        const age = state.settings.dateOfBirth ? calculateAge(state.settings.dateOfBirth) : state.settings.studentAge;
+        const ageLabel = document.getElementById("studentAgeLabel");
+        ageLabel.textContent = age ? `Age ${age}` : "";
+        ageLabel.classList.toggle("d-none", !age);
+        document.getElementById("totalClasses").textContent = stats.totalPlanned;
         document.getElementById("completedClasses").textContent = stats.completed;
         document.getElementById("remainingClasses").textContent = stats.remaining;
-        document.getElementById("progressPct").textContent = `${stats.percentage}%`;
+        const totalWeeks = getCourseWeeks();
+        document.getElementById("totalWeeks").textContent = totalWeeks;
+        document.getElementById("progressPct").textContent = `${Math.round(stats.percentage)}%`;
         document.getElementById("progressBar").style.width = `${stats.percentage}%`;
-
-        if (week) {
-            document.getElementById("weekLabel").textContent = `Week ${week.weekIndex}`;
-            document.getElementById("weekTarget").textContent = week.target;
-            document.getElementById("weekDone").textContent = week.completed;
-            document.getElementById("weekRemaining").textContent = week.remaining;
+        document.getElementById("progressBar").setAttribute("aria-valuenow", stats.percentage);
+        const summaryCard = document.getElementById("dashboardMonthlySummaryCard");
+        const summaryToggle = document.getElementById("monthlySummaryToggle");
+        summaryCard?.classList.toggle("d-none", !state.monthlySummaryVisible);
+        if (summaryToggle) {
+            summaryToggle.textContent = state.monthlySummaryVisible ? "Hide" : "Show";
+            summaryToggle.setAttribute("aria-expanded", String(state.monthlySummaryVisible));
         }
-
-        const totalMinutes = getCompletedRecords().reduce((sum, record) => sum + Number(record.actualDuration || 0), 0);
-        const plannedMinutes = getTotalTargetClasses() * Number(state.settings.durationMinutes || 0);
-        const remainingMinutes = Math.max(0, plannedMinutes - totalMinutes);
-
-        document.getElementById("hoursDone").textContent = formatDuration(totalMinutes);
-        document.getElementById("hoursRemaining").textContent = formatDuration(remainingMinutes);
+        if (state.monthlySummaryVisible) renderDashboardMonthlySummary();
 
         const recoveryBox = document.getElementById("recoveryBox");
-        if (!recoveryBox) return;
 
-        if (recovery && recovery.carryIn > 0) {
+        if (recoveryBox && recovery && recovery.carryForward > 0) {
             recoveryBox.className = "alert alert-warning";
             recoveryBox.innerHTML = `
                 <strong>♻️ Recovery Required</strong><br>
-                ${recovery.carryIn} class(es) are carried forward from the previous month.
+                ${recovery.carryForward} class(es) are carried forward from the previous month.
                 <br>
                 Try to attend <strong>${Number(state.settings.classesPerWeek) + 1} classes/week</strong> or more to catch up.
             `;
-        } else if (recovery && recovery.totalDeficit > 0) {
-            recoveryBox.className = "alert alert-warning";
-            recoveryBox.innerHTML = `
-                <strong>♟ Catch-up Plan</strong><br>
-                Total pending classes: <strong>${recovery.totalDeficit}</strong>.
-                <br>
-                Suggested extra classes/week: <strong>${recovery.extraPerWeek}</strong>.
-            `;
-        } else if (recovery && recovery.current && recovery.current.surplus > 0) {
-            recoveryBox.className = "alert alert-success";
-            recoveryBox.innerHTML = `
-                <strong>🔥 Excellent!</strong><br>
-                ${recovery.current.surplus} extra class(es) completed. This gives you carry-forward benefit for the next month.
-            `;
-        } else {
+        } else if (recoveryBox) {
             recoveryBox.className = "alert alert-success";
             recoveryBox.innerHTML = `
                 <strong>♟ On Track</strong><br>
                 No recovery classes are currently required.
             `;
         }
+    }
+
+    function renderDashboardMonthlySummary() {
+        const body = document.getElementById("dashboardMonthlySummary");
+        if (!body) return;
+        const fragment = document.createDocumentFragment();
+        for (const month of getMonthlyBalances()) {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${getMonthLabel(month.key)}</td>
+                <td>${month.basePlanned}</td>
+                <td>${month.carryForward}</td>
+                <td>${month.planned}</td>
+                <td class="text-success">${month.completed}</td>
+                <td>${month.remaining}</td>
+            `;
+            fragment.appendChild(row);
+        }
+        body.replaceChildren(fragment);
     }
 
     function renderCalendar() {
@@ -2558,7 +2837,7 @@
         }
 
         const monthStatus = getMonthlyBalances().find((item) => item.year === year && item.month === month);
-        const recoveryActive = Boolean(monthStatus && (monthStatus.carryIn > 0 || monthStatus.missed > 0));
+        const recoveryActive = Boolean(monthStatus && (monthStatus.carryForward > 0 || monthStatus.missed > 0));
 
         for (let day = 1; day <= totalDays; day += 1) {
             const iso = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
@@ -2604,67 +2883,533 @@
         if (!refs.monthSummary || !state.settings) return;
         const year = state.currentCalendarDate.getFullYear();
         const month = state.currentCalendarDate.getMonth();
-        const item = getMonthlyBalances().find((record) => record.year === year && record.month === month);
+        const monthKey = `${year}-${String(month + 1).padStart(2, "0")}`;
+        const item = getMonthlyBalances().find((record) => record.key === monthKey);
 
         if (!item) {
             refs.monthSummary.innerHTML = '<div class="text-muted">No course data for this month.</div>';
             return;
         }
-
         refs.monthSummary.innerHTML = `
             <div class="row g-2">
-                <div class="col-6 col-md-3"><div class="summary-box"><small>Planned</small><strong>${item.target}</strong></div></div>
-                <div class="col-6 col-md-3"><div class="summary-box success-box"><small>Completed</small><strong>${item.completed}</strong></div></div>
-                <div class="col-6 col-md-3"><div class="summary-box danger-box"><small>Missed</small><strong>${item.missed}</strong></div></div>
-                <div class="col-6 col-md-3"><div class="summary-box warning-box"><small>Carry In</small><strong>${item.carryIn}</strong></div></div>
+                <div class="col-6 col-md-4 col-xl"><div class="summary-box"><small>Base Planned</small><strong>${item.basePlanned}</strong></div></div>
+                <div class="col-6 col-md-4 col-xl"><div class="summary-box"><small>Carry Forward</small><strong>${item.carryForward}</strong></div></div>
+                <div class="col-6 col-md-4 col-xl"><div class="summary-box"><small>Total Planned</small><strong>${item.planned}</strong></div></div>
+                <div class="col-6 col-md-4 col-xl"><div class="summary-box success-box"><small>Completed</small><strong>${item.completed}</strong></div></div>
+                <div class="col-6 col-md-4 col-xl"><div class="summary-box warning-box"><small>Remaining</small><strong>${item.remaining}</strong></div></div>
             </div>
-            ${item.surplus > 0 ? `<div class="alert alert-success mt-3 mb-0">🔥 ${item.surplus} extra class(es) completed. Next month's requirement can reduce.</div>` : ""}
             ${item.missed > 0 ? `<div class="alert alert-warning mt-3 mb-0">⚠️ ${item.missed} class(es) need recovery.</div>` : ""}
         `;
+    }
+
+    function setMonthlySummaryVisibility(isVisible, persist = true) {
+        state.monthlySummaryVisible = Boolean(isVisible);
+        const card = document.getElementById("dashboardMonthlySummaryCard");
+        const button = document.getElementById("monthlySummaryToggle");
+        card?.classList.toggle("d-none", !state.monthlySummaryVisible);
+        if (button) {
+            button.textContent = state.monthlySummaryVisible ? "Hide" : "Show";
+            button.setAttribute("aria-expanded", String(state.monthlySummaryVisible));
+        }
+        if (state.monthlySummaryVisible) renderDashboardMonthlySummary();
+        if (!persist) return;
+        try {
+            localStorage.setItem(MONTHLY_SUMMARY_PREFERENCE, String(state.monthlySummaryVisible));
+        } catch (error) {
+            console.warn("Monthly summary preference could not be saved.");
+        }
     }
 
     function renderHistory() {
         if (!refs.historyList) return;
 
-        if (!state.records.length) {
+        renderHistoryOverview();
+        state.historyMonthFilter = populateMonthFilter("historyMonthFilter", state.historyMonthFilter);
+        const records = getRecordsByMonth(state.historyMonthFilter);
+        if (!state.records.length || !records.length) {
             refs.historyList.innerHTML = `
                 <div class="text-center py-5 text-muted">
                     <div class="display-5">♟</div>
-                    <h5>No class history yet</h5>
-                    <p>Add your first chess class.</p>
-                    <button type="button" class="btn btn-primary" id="historyEmptyAdd">+ Add Class</button>
+                    <h5>${state.records.length ? "No classes for this month" : "No class history yet"}</h5>
+                    <p>${state.records.length ? "Choose another month to view its attendance." : "Use the header action or Calendar to add your first chess class."}</p>
                 </div>
             `;
+            state.historyPage = renderPagination("historyPagination", 0, 1, "history");
             return;
         }
 
-        const sorted = [...state.records].sort((a, b) => b.classDate.localeCompare(a.classDate));
+        const pageCount = Math.ceil(records.length / 10);
+        state.historyPage = Math.min(state.historyPage, pageCount);
+        const pageRecords = records.slice((state.historyPage - 1) * 10, state.historyPage * 10);
         const fragment = document.createDocumentFragment();
 
-        for (const record of sorted) {
-            const item = document.createElement("div");
-            item.className = "history-item";
-            item.innerHTML = `
-                <div class="history-date">
-                    <strong>${formatDate(record.classDate)}</strong>
-                    <small>${formatTime(record.actualTime)}</small>
-                </div>
-                <div class="history-info">
-                    <span class="badge ${record.status === "completed" ? "text-bg-success" : "text-bg-danger"}">
-                        ${record.status === "completed" ? "✓ Completed" : "✕ Missed"}
-                    </span>
-                    <span class="history-duration">${formatDuration(record.actualDuration)}</span>
-                    ${record.notes ? `<div class="history-note">${escapeHTML(record.notes)}</div>` : ""}
-                </div>
-                <div class="history-actions">
+        const table = document.createElement("div");
+        table.className = "table-responsive d-none d-md-block";
+        table.innerHTML = `
+            <table class="table table-hover align-middle history-records mb-0">
+                <thead><tr><th>Date</th><th>Day</th><th>Class Time</th><th>Duration</th><th>Status</th><th>Notes</th><th class="no-print">Actions</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        `;
+        const tableBody = table.querySelector("tbody");
+        const mobileCards = document.createElement("div");
+        mobileCards.className = "d-md-none";
+
+        for (const record of pageRecords) {
+            const status = getAttendanceStatus(record.status);
+            const day = dateObj(record.classDate).toLocaleDateString("en-IN", { weekday: "short" });
+            const actions = `
+                <div class="history-actions no-print">
+                    <button type="button" class="btn btn-sm btn-outline-secondary history-view" data-id="${record.id}" title="View attendance">View</button>
                     <button type="button" class="btn btn-sm btn-outline-primary history-edit" data-id="${record.id}" title="Edit">✏️</button>
                     <button type="button" class="btn btn-sm btn-outline-danger history-delete" data-id="${record.id}" title="Delete">🗑️</button>
                 </div>
             `;
-            fragment.appendChild(item);
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${formatDate(record.classDate)}</td>
+                <td>${day}</td>
+                <td>${formatTime(record.actualTime)}</td>
+                <td>${formatDuration(record.actualDuration)}</td>
+                <td><span class="badge ${status.className}">${status.label}</span></td>
+                <td class="history-notes">${escapeHTML(record.notes || "-")}</td>
+                <td>${actions}</td>
+            `;
+            tableBody.appendChild(row);
+
+            const card = document.createElement("article");
+            card.className = "app-card mb-2";
+            card.innerHTML = `
+                <div class="app-card-body">
+                    <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                        <div><strong>${formatDate(record.classDate)}</strong><div class="text-muted small">${day}</div></div>
+                        <span class="badge ${status.className}">${status.label}</span>
+                    </div>
+                    <div class="row g-2 small">
+                        <div class="col-6"><span class="text-muted">Class Time</span><br><strong>${formatTime(record.actualTime)}</strong></div>
+                        <div class="col-6"><span class="text-muted">Duration</span><br><strong>${formatDuration(record.actualDuration)}</strong></div>
+                        <div class="col-12"><span class="text-muted">Notes</span><br><span class="history-notes">${escapeHTML(record.notes || "-")}</span></div>
+                    </div>
+                    ${actions}
+                </div>
+            `;
+            mobileCards.appendChild(card);
         }
 
+        fragment.append(table, mobileCards);
         refs.historyList.replaceChildren(fragment);
+        state.historyPage = renderPagination("historyPagination", records.length, state.historyPage, "history");
+    }
+
+    function renderHistoryOverview() {
+        if (!state.settings) return;
+        const period = state.reportMonthFilter === "all"
+            ? "All Months"
+            : getMonthLabel(state.reportMonthFilter);
+        document.getElementById("historyStudentName").textContent = state.settings.studentName || "Chess Student";
+        document.getElementById("historyAcademyName").textContent = state.settings.academyName || "-";
+        document.getElementById("historyReportPeriod").textContent = period;
+        document.getElementById("historyCourseDates").textContent =
+            `${formatDate(state.settings.startDate)} – ${formatDate(state.settings.endDate)}`;
+        document.getElementById("historyClassesPerWeek").textContent = Number(state.settings.classesPerWeek) || 0;
+        document.getElementById("historyTotalPlanned").textContent = Number(state.settings.totalPlannedClasses) || 0;
+        document.getElementById("historyOriginalFees").textContent = formatCurrency(state.settings.originalFees);
+        document.getElementById("historyDiscountPercent").textContent = `${Number(state.settings.discountPercent) || 0}%`;
+        document.getElementById("historyDiscountAmount").textContent = formatCurrency(state.settings.discountAmount);
+        document.getElementById("historyFeesPaid").textContent = formatCurrency(state.settings.feesPaid);
+    }
+
+    function getAttendanceStatus(status) {
+        const statuses = {
+            completed: { label: "✓ Completed", className: "text-bg-success" },
+            missed: { label: "Missed", className: "text-bg-danger" },
+            planned: { label: "Planned", className: "text-bg-warning" },
+            cancelled: { label: "Cancelled", className: "text-bg-secondary" }
+        };
+        return statuses[status] || { label: "Planned", className: "text-bg-warning" };
+    }
+
+    function renderAttendanceReport(includeAllRecords = false) {
+        const settings = state.settings || {};
+        state.reportMonthFilter = populateMonthFilter("reportMonthFilter", state.reportMonthFilter);
+        const summary = calculateMonthlySummary(state.reportMonthFilter);
+        const records = summary.records;
+        const pageCount = Math.ceil(records.length / 10);
+        state.reportPage = Math.min(Math.max(1, state.reportPage), Math.max(1, pageCount));
+        const pageRecords = includeAllRecords
+            ? records
+            : records.slice((state.reportPage - 1) * 10, state.reportPage * 10);
+        const selectedPeriod = state.reportMonthFilter === "all"
+            ? "All Months"
+            : getMonthLabel(state.reportMonthFilter);
+        document.getElementById("reportStudentInfo").innerHTML = `
+            <div class="col-12 col-md-6">
+                <div class="app-card h-100"><div class="app-card-body">
+                    <h4 class="h6 text-muted">Student</h4>
+                    <div class="fw-semibold">${escapeHTML(settings.studentName || "Chess Student")}</div>
+                    <div class="small text-muted mt-2">Academy</div>
+                    <div class="fw-semibold">${escapeHTML(settings.academyName || "-")}</div>
+                </div></div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="app-card h-100"><div class="app-card-body">
+                    <h4 class="h6 text-muted">Attendance Report</h4>
+                    <div class="fw-semibold">${escapeHTML(selectedPeriod)}</div>
+                    <div class="small text-muted mt-2">Course</div>
+                    <div class="fw-semibold">${formatDate(settings.startDate)} – ${formatDate(settings.endDate)}</div>
+                    <div class="small mt-2">Classes per week: <strong>${Number(settings.classesPerWeek) || 0}</strong>
+                        <span class="mx-1">·</span>Total planned: <strong>${Number(settings.totalPlannedClasses) || 0}</strong></div>
+                </div></div>
+            </div>
+        `;
+        renderHistoryOverview();
+        document.getElementById("reportTotal").textContent = records.length;
+        document.getElementById("reportPlanned").textContent = summary.planned;
+        document.getElementById("reportCompleted").textContent = summary.completed;
+        document.getElementById("reportMissed").textContent = summary.missed;
+        document.getElementById("reportRemaining").textContent = summary.remaining;
+        document.getElementById("reportAttendancePct").textContent = `${Math.round(summary.attendancePercentage)}%`;
+        document.getElementById("reportHours").textContent = formatDuration(summary.completedMinutes);
+        document.getElementById("reportOriginalFees").textContent = formatCurrency(settings.originalFees);
+        document.getElementById("reportDiscountPercent").textContent = `${Number(settings.discountPercent) || 0}%`;
+        document.getElementById("reportDiscountAmount").textContent = formatCurrency(settings.discountAmount);
+        document.getElementById("reportFees").textContent = formatCurrency(settings.feesPaid);
+
+        const rows = document.getElementById("reportRows");
+        const fragment = document.createDocumentFragment();
+        if (!records.length) {
+            const row = document.createElement("tr");
+            row.innerHTML = '<td colspan="5" class="text-center text-muted py-4">No attendance records yet.</td>';
+            fragment.appendChild(row);
+        } else {
+            for (const record of pageRecords) {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${formatDate(record.classDate)}</td>
+                    <td><span class="badge ${getAttendanceStatus(record.status).className}">${getAttendanceStatus(record.status).label}</span></td>
+                    <td>${formatTime(record.actualTime)}</td>
+                    <td>${formatDuration(record.actualDuration)}</td>
+                    <td>${escapeHTML(record.notes || "")}</td>
+                `;
+                fragment.appendChild(row);
+            }
+        }
+        rows.replaceChildren(fragment);
+        state.reportPage = renderPagination("reportPagination", records.length, state.reportPage, "report");
+    }
+
+    function printAttendanceReport() {
+        renderAttendanceReport(true);
+        const originalTitle = document.title;
+        const period = state.reportMonthFilter === "all"
+            ? "All_Months"
+            : getMonthLabel(state.reportMonthFilter).replaceAll(" ", "_");
+        document.title = `Chess_Attendance_Report_${period}`;
+        window.addEventListener("afterprint", () => {
+            document.title = originalTitle;
+            renderAttendanceReport();
+        }, { once: true });
+        try {
+            window.print();
+        } catch (error) {
+            document.title = originalTitle;
+            renderAttendanceReport();
+            console.error("Print dialog could not be opened.", error);
+            showToast("Unable to open the print dialog.", "danger");
+        }
+    }
+
+    function downloadAttendancePDF() {
+        showToast("Choose “Save as PDF” in the print dialog to save the report.", "info");
+        printAttendanceReport();
+    }
+
+    function xmlEscape(value) {
+        return String(value ?? "").replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&apos;");
+    }
+
+    function exportAttendanceExcel() {
+        try {
+            const settings = state.settings || {};
+            const records = calculateMonthlySummary(state.reportMonthFilter).records;
+            const attendanceRows = [
+                ["Date", "Day", "Start Time", "Duration", "Status", "Notes"],
+                ...records.map((record) => [
+                    formatDate(record.classDate),
+                    dateObj(record.classDate).toLocaleDateString("en-IN", { weekday: "short" }),
+                    formatTime(record.actualTime),
+                    formatDuration(record.actualDuration),
+                    getAttendanceStatus(record.status).label,
+                    record.notes || ""
+                ])
+            ];
+            const feesRows = [
+                ["Original Fees", "Discount %", "Discount Amount", "Total Fees Paid"],
+                [Number(settings.originalFees) || 0, Number(settings.discountPercent) || 0,
+                    Number(settings.discountAmount) || 0, Number(settings.feesPaid) || 0]
+            ];
+            const columns = (index) => {
+                let result = "";
+                for (let value = index + 1; value > 0; value = Math.floor((value - 1) / 26)) {
+                    result = String.fromCharCode(65 + (value - 1) % 26) + result;
+                }
+                return result;
+            };
+            const sheetXml = (rows) => `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+                <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+                    <sheetData>${rows.map((row, rowIndex) => `<row r="${rowIndex + 1}">${row.map((value, columnIndex) => {
+                        const cellRef = `${columns(columnIndex)}${rowIndex + 1}`;
+                        return typeof value === "number"
+                            ? `<c r="${cellRef}"><v>${value}</v></c>`
+                            : `<c r="${cellRef}" t="inlineStr"><is><t xml:space="preserve">${xmlEscape(value)}</t></is></c>`;
+                    }).join("")}</row>`).join("")}</sheetData>
+                </worksheet>`;
+            const files = [
+                {
+                    name: "[Content_Types].xml",
+                    content: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+                        <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+                            <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+                            <Default Extension="xml" ContentType="application/xml"/>
+                            <Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>
+                            <Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>
+                            <Override PartName="/xl/worksheets/sheet2.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>
+                        </Types>`
+                },
+                {
+                    name: "_rels/.rels",
+                    content: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+                        <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+                            <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>
+                        </Relationships>`
+                },
+                {
+                    name: "xl/workbook.xml",
+                    content: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+                        <workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+                            <sheets>
+                                <sheet name="Attendance" sheetId="1" r:id="rId1"/>
+                                <sheet name="Fees" sheetId="2" r:id="rId2"/>
+                            </sheets>
+                        </workbook>`
+                },
+                {
+                    name: "xl/_rels/workbook.xml.rels",
+                    content: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+                        <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+                            <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>
+                            <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet2.xml"/>
+                        </Relationships>`
+                },
+                { name: "xl/worksheets/sheet1.xml", content: sheetXml(attendanceRows) },
+                { name: "xl/worksheets/sheet2.xml", content: sheetXml(feesRows) }
+            ];
+            const period = state.reportMonthFilter === "all"
+                ? "All_Months"
+                : getMonthLabel(state.reportMonthFilter).replaceAll(" ", "_");
+            downloadBlob(createStoredZip(files), `Chess_Attendance_Report_${period}.xlsx`);
+        } catch (error) {
+            console.error("Excel export failed.", error);
+            showToast("Unable to export the Excel report.", "danger");
+        }
+    }
+
+    function createStoredZip(files) {
+        const encoder = new TextEncoder();
+        const crcTable = new Uint32Array(256);
+        for (let index = 0; index < 256; index += 1) {
+            let value = index;
+            for (let bit = 0; bit < 8; bit += 1) {
+                value = value & 1 ? 0xEDB88320 ^ (value >>> 1) : value >>> 1;
+            }
+            crcTable[index] = value >>> 0;
+        }
+        const crc32 = (bytes) => {
+            let crc = 0xFFFFFFFF;
+            for (const byte of bytes) crc = crcTable[(crc ^ byte) & 0xFF] ^ (crc >>> 8);
+            return (crc ^ 0xFFFFFFFF) >>> 0;
+        };
+        const entries = files.map((file) => {
+            const name = encoder.encode(file.name);
+            const data = encoder.encode(file.content);
+            return { name, data, checksum: crc32(data) };
+        });
+        const localParts = [];
+        const centralParts = [];
+        let offset = 0;
+        for (const entry of entries) {
+            const localHeader = new Uint8Array(30 + entry.name.length);
+            const localView = new DataView(localHeader.buffer);
+            localView.setUint32(0, 0x04034B50, true);
+            localView.setUint16(4, 20, true);
+            localView.setUint32(14, entry.checksum, true);
+            localView.setUint32(18, entry.data.length, true);
+            localView.setUint32(22, entry.data.length, true);
+            localView.setUint16(26, entry.name.length, true);
+            localHeader.set(entry.name, 30);
+            localParts.push(localHeader, entry.data);
+
+            const centralHeader = new Uint8Array(46 + entry.name.length);
+            const centralView = new DataView(centralHeader.buffer);
+            centralView.setUint32(0, 0x02014B50, true);
+            centralView.setUint16(4, 20, true);
+            centralView.setUint16(6, 20, true);
+            centralView.setUint32(16, entry.checksum, true);
+            centralView.setUint32(20, entry.data.length, true);
+            centralView.setUint32(24, entry.data.length, true);
+            centralView.setUint16(28, entry.name.length, true);
+            centralView.setUint32(42, offset, true);
+            centralHeader.set(entry.name, 46);
+            centralParts.push(centralHeader);
+            offset += localHeader.length + entry.data.length;
+        }
+        const centralSize = centralParts.reduce((size, part) => size + part.length, 0);
+        const end = new Uint8Array(22);
+        const endView = new DataView(end.buffer);
+        endView.setUint32(0, 0x06054B50, true);
+        endView.setUint16(8, entries.length, true);
+        endView.setUint16(10, entries.length, true);
+        endView.setUint32(12, centralSize, true);
+        endView.setUint32(16, offset, true);
+        return new Blob([...localParts, ...centralParts, end], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        });
+    }
+
+    function downloadBlob(blob, filename) {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = filename;
+        link.click();
+        window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    function downloadJsonBackup() {
+        const payload = {
+            format: "ChessClassTrackerBackup",
+            version: 1,
+            exportedAt: new Date().toISOString(),
+            settings: { ...state.settings },
+            student: {
+                name: state.settings.studentName || "",
+                age: state.settings.dateOfBirth ? calculateAge(state.settings.dateOfBirth) : state.settings.studentAge || "",
+                dateOfBirth: state.settings.dateOfBirth || "",
+                mobile: state.settings.studentMobile || ""
+            },
+            academy: { name: state.settings.academyName || "" },
+            course: { startDate: state.settings.startDate, endDate: state.settings.endDate },
+            attendance: state.records,
+            feesHistory: state.feesHistory.map(({ id, ...entry }) => entry)
+        };
+        const url = URL.createObjectURL(new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" }));
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `chess-class-tracker-${todayISO()}.json`;
+        link.click();
+        window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    function validateBackup(data) {
+        if (!data || typeof data !== "object" || Array.isArray(data)) return "Backup file must contain a JSON object.";
+        const settings = data.settings;
+        const records = data.attendance || data.records;
+        if (!settings || typeof settings !== "object") return "Backup is missing valid settings.";
+        if (!Array.isArray(records)) return "Backup is missing an attendance records list.";
+        if (!settings.startDate || !settings.endDate || !/^\d{4}-\d{2}-\d{2}$/.test(settings.startDate) || !/^\d{4}-\d{2}-\d{2}$/.test(settings.endDate)) {
+            return "Backup course dates are invalid.";
+        }
+        if (dateToISO(dateObj(settings.startDate)) !== settings.startDate || dateToISO(dateObj(settings.endDate)) !== settings.endDate || settings.endDate < settings.startDate) {
+            return "Backup course date range is invalid.";
+        }
+        if (settings.classesPerWeek != null
+            && (!Number.isInteger(Number(settings.classesPerWeek))
+                || Number(settings.classesPerWeek) < 1
+                || Number(settings.classesPerWeek) > 7)) {
+            return "Backup weekly class target must be between 1 and 7.";
+        }
+        if (settings.totalPlannedClasses != null
+            && (!Number.isInteger(Number(settings.totalPlannedClasses)) || Number(settings.totalPlannedClasses) < 0)) {
+            return "Backup total planned classes must be a whole number of zero or more.";
+        }
+        if (settings.feesPaid != null
+            && ((typeof settings.feesPaid !== "number" && typeof settings.feesPaid !== "string")
+                || String(settings.feesPaid).trim() === ""
+                || !Number.isFinite(Number(settings.feesPaid))
+                || Number(settings.feesPaid) < 0)) {
+            return "Backup fees paid must be a valid amount of zero or more.";
+        }
+        if (settings.originalFees != null
+            && (!Number.isFinite(Number(settings.originalFees)) || Number(settings.originalFees) < 0)) {
+            return "Backup original fees must be a valid amount of zero or more.";
+        }
+        if (settings.discountPercent != null
+            && (!Number.isFinite(Number(settings.discountPercent))
+                || Number(settings.discountPercent) < 0
+                || Number(settings.discountPercent) > 100)) {
+            return "Backup discount must be between 0 and 100 percent.";
+        }
+        if (records.some((record) => !record || !/^\d{4}-\d{2}-\d{2}$/.test(record.classDate || "") || !["completed", "missed"].includes(record.status))) {
+            return "Backup contains an invalid attendance record.";
+        }
+        if (data.feesHistory != null && (!Array.isArray(data.feesHistory) || data.feesHistory.some((entry) =>
+            !entry || !/^\d{4}-\d{2}-\d{2}$/.test(entry.date || "")
+            || [entry.originalFees, entry.discountPercent, entry.discountAmount, entry.feesPaid].some((value) => !Number.isFinite(Number(value)) || Number(value) < 0)
+            || Number(entry.discountPercent) > 100
+        ))) {
+            return "Backup contains invalid fee history.";
+        }
+        return "";
+    }
+
+    async function importJsonBackup(file) {
+        try {
+            const data = JSON.parse(await file.text());
+            const validationError = validateBackup(data);
+            if (validationError) {
+                showToast(validationError, "warning");
+                return;
+            }
+            if (!confirm("Import settings and merge attendance records by date? Existing records on matching dates will be updated.")) return;
+
+            const settings = normalizeSettings(data.settings);
+            const importedRecords = (data.attendance || data.records).map((record) => ({
+                classDate: record.classDate,
+                status: record.status,
+                actualTime: String(record.actualTime || ""),
+                actualDuration: Math.max(0, Number(record.actualDuration) || 0),
+                notes: String(record.notes || ""),
+                ...(record.createdAt ? { createdAt: record.createdAt } : {})
+            }));
+            const importedFeesHistory = Array.isArray(data.feesHistory)
+                ? data.feesHistory.map((entry) => ({
+                    date: entry.date,
+                    originalFees: Number(entry.originalFees),
+                    discountPercent: Number(entry.discountPercent),
+                    discountAmount: Number(entry.discountAmount),
+                    feesPaid: Number(entry.feesPaid)
+                }))
+                : undefined;
+            await mergeBackupData(settings, importedRecords, importedFeesHistory);
+            state.settings = await getSettings();
+            state.records = await getAllRecords();
+            state.feesHistory = await getAllFeesHistory();
+            rebuildRecordsIndex();
+            loadSettingsForm();
+            renderFeesHistory();
+            renderFeesHistory();
+            refreshAll();
+            renderAttendanceReport();
+            showToast("Backup imported successfully.", "success");
+        } catch (error) {
+            console.error(error);
+            showToast(error instanceof SyntaxError ? "Invalid JSON file. Please choose a valid Chess Class Tracker backup." : "Unable to import backup.", "danger");
+        }
     }
 
     function openClassModal(date = todayISO()) {
@@ -2694,12 +3439,22 @@
 
     async function handleSettingsSave(event) {
         event.preventDefault();
+        const previousFees = getFeeHistorySnapshot(state.settings);
         const settings = setSettingsFromForm();
         if (!settings) return;
 
         try {
-            await saveSettings(settings);
+            const feeChanged = previousFees.originalFees !== settings.originalFees
+                || previousFees.discountPercent !== settings.discountPercent
+                || previousFees.discountAmount !== settings.discountAmount
+                || previousFees.feesPaid !== settings.feesPaid;
+            const feeEntry = await saveSettingsWithFeeHistory(settings, feeChanged);
             state.settings = settings;
+            if (feeEntry) {
+                state.feesHistory.push(feeEntry);
+                state.feesHistory.sort((a, b) => b.date.localeCompare(a.date) || Number(b.id) - Number(a.id));
+                renderFeesHistory();
+            }
             loadSettingsForm();
             refreshAll();
             showToast("Settings saved successfully.", "success");
@@ -2784,16 +3539,19 @@
     }
 
     async function deleteAllData() {
-        if (!confirm("Delete ALL chess class records and reset settings?")) return;
-        if (!confirm("Are you absolutely sure? This cannot be undone.")) return;
+        if (!confirm("Delete ALL student, course and attendance data? This cannot be undone.")) return;
 
         try {
             await clearRecords();
+            await clearSettings();
+            await clearFeesHistory();
             state.records = [];
+            state.feesHistory = [];
             rebuildRecordsIndex();
             state.settings = buildDefaultSettings();
             await saveSettings(state.settings);
             loadSettingsForm();
+            renderFeesHistory();
             refreshAll();
             showView("dashboard");
             showToast("All data deleted successfully.", "success");
@@ -2813,6 +3571,11 @@
         renderCalendar();
     }
 
+    function currentMonth() {
+        state.currentCalendarDate = new Date();
+        renderCalendar();
+    }
+
     function showView(view) {
         document.querySelectorAll("[data-view]").forEach((button) => {
             button.classList.toggle("active", button.dataset.view === view);
@@ -2823,7 +3586,10 @@
         });
 
         if (view === "calendar") renderCalendar();
-        if (view === "history") renderHistory();
+        if (view === "history") {
+            renderHistory();
+            renderAttendanceReport();
+        }
         if (view === "dashboard") renderDashboard();
         window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -2844,9 +3610,12 @@
     }
 
     function refreshAll() {
+        state.monthlyBalancesCache = null;
         renderDashboard();
         renderCalendar();
         renderHistory();
+        const report = document.getElementById("attendanceReport");
+        if (report && !report.classList.contains("d-none")) renderAttendanceReport();
     }
 
     function updateInstallButtonState() {
@@ -2929,6 +3698,15 @@
                 return;
             }
 
+            const historyView = event.target.closest(".history-view");
+            if (historyView) {
+                const report = document.getElementById("attendanceReport");
+                report.classList.remove("d-none");
+                renderAttendanceReport();
+                report.scrollIntoView({ behavior: "smooth", block: "start" });
+                return;
+            }
+
             const historyEdit = event.target.closest(".history-edit");
             if (historyEdit) {
                 const record = state.records.find((item) => Number(item.id) === Number(historyEdit.dataset.id));
@@ -2959,37 +3737,89 @@
                 return;
             }
 
-            const emptyHistoryAdd = event.target.closest("#historyEmptyAdd");
-            if (emptyHistoryAdd) {
-                openClassModal();
-                return;
-            }
-
             const quickAdd = event.target.closest("#quickAdd");
             if (quickAdd) {
                 openClassModal();
             }
         });
 
-        document.getElementById("historyAdd")?.addEventListener("click", () => openClassModal());
         document.getElementById("settingsForm")?.addEventListener("submit", handleSettingsSave);
+        document.getElementById("monthlySummaryToggle")?.addEventListener("click", () => {
+            setMonthlySummaryVisibility(!state.monthlySummaryVisible);
+        });
+        document.getElementById("originalFees")?.addEventListener("input", updateFeesPreview);
+        document.getElementById("discountPercent")?.addEventListener("input", updateFeesPreview);
         document.getElementById("classForm")?.addEventListener("submit", handleClassSave);
         document.getElementById("modalDelete")?.addEventListener("click", handleModalDelete);
         document.getElementById("prevMonth")?.addEventListener("click", previousMonth);
         document.getElementById("nextMonth")?.addEventListener("click", nextMonth);
+        document.getElementById("currentMonth")?.addEventListener("click", currentMonth);
         document.getElementById("deleteBtn")?.addEventListener("click", deleteAllData);
+        document.getElementById("reportToggle")?.addEventListener("click", () => {
+            const report = document.getElementById("attendanceReport");
+            const isHidden = report.classList.toggle("d-none");
+            document.getElementById("reportToggle").textContent = isHidden ? "👁 View Attendance" : "Hide Attendance";
+            document.getElementById("reportToggle").setAttribute("aria-label", isHidden ? "View attendance report" : "Hide attendance report");
+            if (!isHidden) renderAttendanceReport();
+        });
+        document.getElementById("historyMonthFilter")?.addEventListener("change", (event) => {
+            state.historyMonthFilter = event.target.value;
+            state.historyPage = 1;
+            renderHistory();
+        });
+        document.getElementById("reportMonthFilter")?.addEventListener("change", (event) => {
+            state.reportMonthFilter = event.target.value;
+            state.reportPage = 1;
+            renderAttendanceReport();
+        });
+        document.getElementById("printReport")?.addEventListener("click", printAttendanceReport);
+        document.getElementById("downloadPdf")?.addEventListener("click", downloadAttendancePDF);
+        document.getElementById("downloadExcel")?.addEventListener("click", exportAttendanceExcel);
+        document.addEventListener("click", (event) => {
+            const pageButton = event.target.closest("[data-pagination-target][data-page]");
+            if (!pageButton || pageButton.disabled) return;
+            const page = Number(pageButton.dataset.page);
+            if (!Number.isInteger(page) || page < 1) return;
+            if (pageButton.dataset.paginationTarget === "history") {
+                state.historyPage = page;
+                renderHistory();
+            } else if (pageButton.dataset.paginationTarget === "report") {
+                state.reportPage = page;
+                renderAttendanceReport();
+            }
+        });
+        document.getElementById("exportBackup")?.addEventListener("click", downloadJsonBackup);
+        document.getElementById("importBackup")?.addEventListener("click", () => document.getElementById("backupFile").click());
+        document.getElementById("backupFile")?.addEventListener("change", (event) => {
+            const file = event.target.files?.[0];
+            if (file) importJsonBackup(file);
+            event.target.value = "";
+        });
 
         document.getElementById("startDate")?.addEventListener("change", (event) => {
             const start = event.target.value;
             const endField = document.getElementById("endDate");
-            if (start && (!endField.value || endField.dataset.auto === "true")) {
-                endField.value = addDays(start, 365);
+            if (start) {
+                endField.value = addYear(start);
                 endField.dataset.auto = "true";
             }
         });
 
         document.getElementById("endDate")?.addEventListener("change", (event) => {
             event.target.dataset.auto = "false";
+        });
+
+        document.getElementById("dateOfBirth")?.addEventListener("change", (event) => {
+            const ageField = document.getElementById("studentAge");
+            if (event.target.value && event.target.value > todayISO()) {
+                event.target.value = "";
+                ageField.value = "";
+                ageField.readOnly = false;
+                showToast("Date of birth cannot be in the future.", "warning");
+                return;
+            }
+            ageField.value = event.target.value ? calculateAge(event.target.value) : "";
+            ageField.readOnly = Boolean(event.target.value);
         });
 
         document.addEventListener("keydown", (event) => {
@@ -3017,15 +3847,23 @@
                     const store = database.createObjectStore("attendance", { keyPath: "id", autoIncrement: true });
                     store.createIndex("classDate", "classDate", { unique: false });
                 }
+                if (!database.objectStoreNames.contains("feesHistory")) {
+                    const store = database.createObjectStore("feesHistory", { keyPath: "id", autoIncrement: true });
+                    store.createIndex("date", "date", { unique: false });
+                }
             };
 
             request.onsuccess = () => {
                 state.db = request.result;
+                state.db.onversionchange = () => state.db.close();
                 resolve(request.result);
             };
 
             request.onerror = () => {
                 reject(request.error || new Error("IndexedDB open failed."));
+            };
+            request.onblocked = () => {
+                showToast("Close other Chess Class Tracker tabs, then reload to finish the safe database update.", "warning");
             };
         });
     }
@@ -3048,6 +3886,68 @@
         });
     }
 
+    function saveSettingsWithFeeHistory(data, recordFeeChange) {
+        return new Promise((resolve, reject) => {
+            const tx = state.db.transaction(["settings", "feesHistory"], "readwrite");
+            tx.objectStore("settings").put({ ...data, id: 1, updatedAt: new Date().toISOString() });
+            let entry = null;
+            if (recordFeeChange) {
+                const snapshot = getFeeHistorySnapshot(data);
+                const request = tx.objectStore("feesHistory").add(snapshot);
+                request.onsuccess = () => {
+                    entry = { ...snapshot, id: request.result };
+                };
+                request.onerror = () => reject(request.error || new Error("Failed to save fee history."));
+            }
+            tx.oncomplete = () => resolve(entry);
+            tx.onerror = () => reject(tx.error || new Error("Failed to save settings and fee history."));
+            tx.onabort = () => reject(tx.error || new Error("Settings save was cancelled."));
+        });
+    }
+
+    function mergeBackupData(settings, importedRecords, importedFeesHistory) {
+        return new Promise((resolve, reject) => {
+            const tx = state.db.transaction(["settings", "attendance", "feesHistory"], "readwrite");
+            const store = tx.objectStore("attendance");
+            const request = store.getAll();
+            request.onsuccess = () => {
+                const existingByDate = new Map((request.result || []).map((record) => [record.classDate, record]));
+                const importedByDate = new Map(importedRecords.map((record) => [record.classDate, record]));
+                tx.objectStore("settings").put({ ...settings, id: 1, updatedAt: new Date().toISOString() });
+
+                for (const [classDate, incoming] of importedByDate) {
+                    const existing = existingByDate.get(classDate);
+                    const { id: ignoredId, ...recordData } = incoming;
+                    if (existing) {
+                        store.put({ ...existing, ...recordData, id: existing.id, createdAt: existing.createdAt || recordData.createdAt, updatedAt: new Date().toISOString() });
+                    } else {
+                        store.add({ ...recordData, createdAt: recordData.createdAt || new Date().toISOString(), updatedAt: new Date().toISOString() });
+                    }
+                }
+                if (Array.isArray(importedFeesHistory)) {
+                    const feeStore = tx.objectStore("feesHistory");
+                    const historyRequest = feeStore.getAll();
+                    historyRequest.onsuccess = () => {
+                        const existingSnapshots = new Set((historyRequest.result || []).map((entry) =>
+                            [entry.date, entry.originalFees, entry.discountPercent, entry.discountAmount, entry.feesPaid].join("|")
+                        ));
+                        for (const entry of importedFeesHistory) {
+                            const key = [entry.date, entry.originalFees, entry.discountPercent, entry.discountAmount, entry.feesPaid].join("|");
+                            if (!existingSnapshots.has(key)) {
+                                feeStore.add(entry);
+                                existingSnapshots.add(key);
+                            }
+                        }
+                    };
+                }
+            };
+            request.onerror = () => reject(request.error || new Error("Unable to read attendance for backup import."));
+            tx.oncomplete = () => resolve(true);
+            tx.onerror = () => reject(tx.error || new Error("Backup import transaction failed."));
+            tx.onabort = () => reject(tx.error || new Error("Backup import was cancelled."));
+        });
+    }
+
     function getAllRecords() {
         return new Promise((resolve, reject) => {
             const tx = state.db.transaction("attendance", "readonly");
@@ -3061,7 +3961,16 @@
         });
     }
 
-    const getRecords = getAllRecords;
+    function getAllFeesHistory() {
+        return new Promise((resolve, reject) => {
+            const tx = state.db.transaction("feesHistory", "readonly");
+            const request = tx.objectStore("feesHistory").getAll();
+            request.onsuccess = () => resolve((request.result || []).sort((a, b) =>
+                b.date.localeCompare(a.date) || Number(b.id) - Number(a.id)
+            ));
+            request.onerror = () => reject(request.error || new Error("Failed to read fee history."));
+        });
+    }
 
     function addRecord(record) {
         return new Promise((resolve, reject) => {
@@ -3084,9 +3993,19 @@
     function deleteRecord(recordId) {
         return new Promise((resolve, reject) => {
             const tx = state.db.transaction("attendance", "readwrite");
-            const request = tx.objectStore("attendance").delete(Number(recordId));
-            request.onsuccess = () => resolve(true);
+            const store = tx.objectStore("attendance");
+            const request = store.delete(Number(recordId));
             request.onerror = () => reject(request.error || new Error("Failed to delete record."));
+            tx.oncomplete = () => {
+                const verifyTx = state.db.transaction("attendance", "readonly");
+                const verifyRequest = verifyTx.objectStore("attendance").get(Number(recordId));
+                verifyRequest.onsuccess = () => verifyRequest.result
+                    ? reject(new Error("Attendance record still exists after deletion."))
+                    : resolve(true);
+                verifyRequest.onerror = () => reject(verifyRequest.error || new Error("Unable to verify attendance deletion."));
+            };
+            tx.onerror = () => reject(tx.error || new Error("Failed to delete record."));
+            tx.onabort = () => reject(tx.error || new Error("Attendance deletion was cancelled."));
         });
     }
 
@@ -3099,21 +4018,53 @@
         });
     }
 
+    function clearSettings() {
+        return new Promise((resolve, reject) => {
+            const tx = state.db.transaction("settings", "readwrite");
+            const request = tx.objectStore("settings").clear();
+            request.onsuccess = () => resolve(true);
+            request.onerror = () => reject(request.error || new Error("Failed to clear settings."));
+        });
+    }
+
+    function clearFeesHistory() {
+        return new Promise((resolve, reject) => {
+            const tx = state.db.transaction("feesHistory", "readwrite");
+            const request = tx.objectStore("feesHistory").clear();
+            request.onsuccess = () => resolve(true);
+            request.onerror = () => reject(request.error || new Error("Failed to clear fee history."));
+        });
+    }
+
     async function initApp() {
         setLoading(true);
 
         try {
             await openDatabase();
+            try {
+                state.monthlySummaryVisible = localStorage.getItem(MONTHLY_SUMMARY_PREFERENCE) === "true";
+            } catch (error) {
+                state.monthlySummaryVisible = false;
+            }
             state.settings = await getSettings();
 
             if (!state.settings) {
                 state.settings = buildDefaultSettings();
                 await saveSettings(state.settings);
+            } else {
+                const storedSettings = state.settings;
+                state.settings = normalizeSettings(storedSettings);
+                if (Object.keys(state.settings).some((key) => storedSettings[key] !== state.settings[key])) {
+                    await saveSettings(state.settings);
+                }
             }
 
             state.records = await getAllRecords();
+            state.feesHistory = await getAllFeesHistory();
             rebuildRecordsIndex();
             loadSettingsForm();
+            renderFeesHistory();
+            setMonthlySummaryVisibility(state.monthlySummaryVisible, false);
             state.currentCalendarDate = new Date();
             refreshAll();
             showView("dashboard");
