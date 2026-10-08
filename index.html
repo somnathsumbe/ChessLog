@@ -1279,7 +1279,7 @@
                     </h1>
 
                     <p class="page-subtitle">
-                        Tap any date to add or update a class.
+                        Class dates are available from the course start date through today, up to the course end date.
                     </p>
 
                 </div>
@@ -2532,6 +2532,22 @@
         return date >= state.settings.startDate && date <= state.settings.endDate;
     }
 
+    function getLastSelectableClassDate() {
+        if (!state.settings) return "";
+        return state.settings.endDate < todayISO() ? state.settings.endDate : todayISO();
+    }
+
+    function isSelectableClassDate(date) {
+        if (!state.settings || !/^\d{4}-\d{2}-\d{2}$/.test(date || "")) return false;
+        const parsedDate = dateObj(date);
+        if (dateToISO(parsedDate) !== date) return false;
+        const lastSelectableDate = getLastSelectableClassDate();
+        return Boolean(lastSelectableDate)
+            && state.settings.startDate <= lastSelectableDate
+            && date >= state.settings.startDate
+            && date <= lastSelectableDate;
+    }
+
     function getCourseWeeks() {
         if (!state.settings) return 0;
         return getCourseWeeksForSettings(state.settings);
@@ -2823,6 +2839,13 @@
         const year = state.currentCalendarDate.getFullYear();
         const month = state.currentCalendarDate.getMonth();
         refs.monthTitle.textContent = state.currentCalendarDate.toLocaleDateString("en-IN", { month: "long", year: "numeric" });
+        const firstSelectableMonth = state.settings.startDate.slice(0, 7);
+        const lastSelectableMonth = getLastSelectableClassDate().slice(0, 7);
+        const currentMonthKey = getMonthKey(state.currentCalendarDate);
+        const prevMonthButton = document.getElementById("prevMonth");
+        const nextMonthButton = document.getElementById("nextMonth");
+        if (prevMonthButton) prevMonthButton.disabled = !lastSelectableMonth || currentMonthKey <= firstSelectableMonth;
+        if (nextMonthButton) nextMonthButton.disabled = !lastSelectableMonth || currentMonthKey >= lastSelectableMonth;
 
         const firstDay = new Date(year, month, 1);
         const lastDay = new Date(year, month + 1, 0);
@@ -2844,16 +2867,18 @@
             const record = getRecordByDate(iso);
             const isToday = iso === todayISO();
             const inCourse = isDateInCourse(iso);
+            const selectable = isSelectableClassDate(iso);
 
             const button = document.createElement("button");
             button.type = "button";
             button.dataset.calendarDate = iso;
             button.className = "calendar-day";
             if (!inCourse) button.classList.add("outside-course");
+            if (inCourse && !selectable) button.classList.add("future-disabled");
             if (isToday) button.classList.add("today");
             if (record && record.status === "completed") button.classList.add("completed");
             if (record && record.status === "missed") button.classList.add("missed");
-            if (!inCourse) button.disabled = true;
+            if (!selectable) button.disabled = true;
 
             const dayNumber = document.createElement("div");
             dayNumber.className = "day-number";
@@ -3414,6 +3439,10 @@
 
     function openClassModal(date = todayISO()) {
         if (!state.settings) return;
+        if (!isSelectableClassDate(date)) {
+            showToast("Class dates can only be selected from the course start date through today, and not after the course end date.", "warning");
+            return;
+        }
         const existing = getRecordByDate(date);
         const modalTitle = document.getElementById("modalTitle");
         const classDate = document.getElementById("classDate");
@@ -3424,6 +3453,9 @@
         const deleteButton = document.getElementById("modalDelete");
 
         modalTitle.textContent = existing ? "♟ Update Chess Class" : "♟ Add Chess Class";
+        classDate.min = state.settings.startDate;
+        classDate.max = getLastSelectableClassDate();
+        classDate.disabled = !classDate.max || state.settings.startDate > classDate.max;
         classDate.value = date;
         classStatus.value = existing?.status || "completed";
         actualTime.value = existing?.actualTime || state.settings.defaultTime || "15:00";
@@ -3477,8 +3509,8 @@
             return;
         }
 
-        if (!isDateInCourse(date)) {
-            showToast("Class date must be inside course period.", "warning");
+        if (!isSelectableClassDate(date)) {
+            showToast("Class date must be between the course start date and today, and not after the course end date.", "warning");
             return;
         }
 
