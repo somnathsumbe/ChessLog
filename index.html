@@ -1268,7 +1268,7 @@
                         <div class="table-responsive">
                             <table class="table table-sm align-middle mb-0">
                                 <thead>
-                                    <tr><th>Month</th><th>Base Planned</th><th>Carry Forward</th><th>Planned</th><th>Completed</th><th>Remaining</th></tr>
+                                    <tr><th>Month</th><th>Base Planned</th><th>Carry / Ahead</th><th>Planned</th><th>Completed</th><th>Remaining</th></tr>
                                 </thead>
                                 <tbody id="dashboardMonthlySummary"></tbody>
                             </table>
@@ -3510,11 +3510,23 @@
                 || Number(settings.discountPercent) > 100)) {
             return "Backup discount must be between 0 and 100 percent.";
         }
-        if (records.some((record) => !record || !/^\d{4}-\d{2}-\d{2}$/.test(record.classDate || "") || !["completed", "missed"].includes(record.status))) {
-            return "Backup contains an invalid attendance record.";
+        const seenClassDates = new Set();
+        for (const record of records) {
+            const classDate = record?.classDate || "";
+            if (!record
+                || !/^\d{4}-\d{2}-\d{2}$/.test(classDate)
+                || dateToISO(dateObj(classDate)) !== classDate
+                || classDate < settings.startDate
+                || classDate > settings.endDate
+                || !["completed", "missed"].includes(record.status)
+                || seenClassDates.has(classDate)) {
+                return "Backup contains an invalid, duplicate, or out-of-course attendance record.";
+            }
+            seenClassDates.add(classDate);
         }
         if (data.feesHistory != null && (!Array.isArray(data.feesHistory) || data.feesHistory.some((entry) =>
             !entry || !/^\d{4}-\d{2}-\d{2}$/.test(entry.date || "")
+            || dateToISO(dateObj(entry.date)) !== entry.date
             || [entry.originalFees, entry.discountPercent, entry.discountAmount, entry.feesPaid].some((value) => !Number.isFinite(Number(value)) || Number(value) < 0)
             || Number(entry.discountPercent) > 100
         ))) {
