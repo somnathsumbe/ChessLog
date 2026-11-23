@@ -1,4 +1,4 @@
-const CACHE_NAME = "chess-class-tracker-v3";
+const CACHE_NAME = "chess-class-tracker-v4";
 const APP_SHELL = [
   "./",
   "./index.html",
