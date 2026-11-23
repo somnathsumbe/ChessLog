@@ -2354,8 +2354,8 @@
         const end = addCourseMonths(start, 12);
         return {
             id: 1,
-            studentName: "Shivansh Suman Sumbe",
-            academyName: "Kaiser Chess Academy",
+            studentName: "Shivansh Somnath Sumbe",
+            academyName: "Kaizer Chess Academy",
             dateOfBirth: "2018-02-18",
             studentAge: String(calculateAge("2018-02-18")),
             studentMobile: "9028787219",
@@ -2389,7 +2389,7 @@
     function normalizeSettings(settings) {
         const normalized = { ...buildDefaultSettings(), ...settings, id: 1 };
         normalized.studentName = String(normalized.studentName || "Shivansh Suman Sumbe");
-        normalized.academyName = String(normalized.academyName || "Kaiser Chess Academy");
+        normalized.academyName = String(normalized.academyName || "Kaizer Chess Academy");
         normalized.dateOfBirth = normalized.dateOfBirth || "2018-02-18";
         normalized.studentAge = String(calculateAge(normalized.dateOfBirth));
         normalized.studentMobile = String(normalized.studentMobile || "9028787219");
