@@ -1756,7 +1756,18 @@
                                 </div>
 
 
-                                <div class="col-md-6">
+                                <div class="col-md-4">
+                                    <label class="form-label" for="courseDurationMonths">Course Duration</label>
+                                    <select id="courseDurationMonths" class="form-select">
+                                        <option value="3">3 Months</option>
+                                        <option value="6">6 Months</option>
+                                        <option value="12" selected>1 Year (12 Months)</option>
+                                        <option value="0">Custom Duration</option>
+                                    </select>
+                                    <div class="form-text">Choose a preset or select Custom to set dates manually.</div>
+                                </div>
+
+                                <div class="col-md-4">
 
                                     <label
                                         class="form-label"
@@ -1774,7 +1785,7 @@
                                 </div>
 
 
-                                <div class="col-md-6">
+                                <div class="col-md-4">
 
                                     <label
                                         class="form-label"
@@ -1790,7 +1801,7 @@
                                     >
 
                                     <div class="form-text">
-                                        Default: Same calendar date next year
+                                        Automatically calculated from the selected course duration. Custom dates are also supported.
                                     </div>
 
                                 </div>
@@ -2274,15 +2285,17 @@
         ].join("-");
     }
 
-    function addYear(iso) {
+    function addCourseMonths(iso, months) {
         const date = dateObj(iso);
-        const month = date.getMonth();
         const day = date.getDate();
         date.setDate(1);
-        date.setFullYear(date.getFullYear() + 1);
-        date.setMonth(month);
-        date.setDate(Math.min(day, new Date(date.getFullYear(), month + 1, 0).getDate()));
+        date.setMonth(date.getMonth() + Number(months || 0));
+        date.setDate(Math.min(day, new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()));
         return dateToISO(date);
+    }
+
+    function addYear(iso) {
+        return addCourseMonths(iso, 12);
     }
 
     function daysBetween(start, end) {
@@ -2338,14 +2351,15 @@
 
     function buildDefaultSettings() {
         const start = todayISO();
-        const end = addYear(start);
+        const end = addCourseMonths(start, 12);
         return {
             id: 1,
-            studentName: "",
-            academyName: "",
-            dateOfBirth: "",
-            studentAge: "",
-            studentMobile: "",
+            studentName: "Shivansh Suman Sumbe",
+            academyName: "Kaiser Chess Academy",
+            dateOfBirth: "2018-02-18",
+            studentAge: String(calculateAge("2018-02-18")),
+            studentMobile: "9028787219",
+            courseDurationMonths: 12,
             classesPerWeek: 2,
             durationMinutes: 120,
             defaultTime: "15:00",
@@ -2374,6 +2388,15 @@
 
     function normalizeSettings(settings) {
         const normalized = { ...buildDefaultSettings(), ...settings, id: 1 };
+        normalized.studentName = String(normalized.studentName || "Shivansh Suman Sumbe");
+        normalized.academyName = String(normalized.academyName || "Kaiser Chess Academy");
+        normalized.dateOfBirth = normalized.dateOfBirth || "2018-02-18";
+        normalized.studentAge = String(calculateAge(normalized.dateOfBirth));
+        normalized.studentMobile = String(normalized.studentMobile || "9028787219");
+        const durationMonths = Number(settings?.courseDurationMonths);
+        normalized.courseDurationMonths = [3, 6, 12].includes(durationMonths)
+            ? durationMonths
+            : [3, 6, 12].find((months) => addCourseMonths(normalized.startDate, months) === normalized.endDate) || 0;
         const totalPlannedClasses = Number(settings?.totalPlannedClasses);
         normalized.totalPlannedClasses = Number.isInteger(totalPlannedClasses) && totalPlannedClasses >= 0
             ? totalPlannedClasses
@@ -2487,6 +2510,7 @@
                 ? String(calculateAge(dateOfBirth))
                 : document.getElementById("studentAge").value.trim(),
             studentMobile: document.getElementById("studentMobile").value.trim(),
+            courseDurationMonths: Number(document.getElementById("courseDurationMonths").value) || 0,
             classesPerWeek: Number(document.getElementById("classesPerWeek").value) || 2,
             durationMinutes: Number(document.getElementById("durationMinutes").value) || 120,
             defaultTime: document.getElementById("defaultTime").value || "15:00",
@@ -2507,6 +2531,7 @@
         document.getElementById("studentAge").value = state.settings.studentAge || "";
         document.getElementById("studentAge").readOnly = Boolean(state.settings.dateOfBirth);
         document.getElementById("studentMobile").value = state.settings.studentMobile || "";
+        document.getElementById("courseDurationMonths").value = String(state.settings.courseDurationMonths ?? 0);
         document.getElementById("classesPerWeek").value = state.settings.classesPerWeek || 2;
         document.getElementById("durationMinutes").value = state.settings.durationMinutes || 120;
         document.getElementById("defaultTime").value = state.settings.defaultTime || "15:00";
@@ -3828,17 +3853,53 @@
             event.target.value = "";
         });
 
-        document.getElementById("startDate")?.addEventListener("change", (event) => {
-            const start = event.target.value;
-            const endField = document.getElementById("endDate");
-            if (start) {
-                endField.value = addYear(start);
-                endField.dataset.auto = "true";
+        const courseDuration = document.getElementById("courseDurationMonths");
+        const startDateField = document.getElementById("startDate");
+        const endDateField = document.getElementById("endDate");
+        const totalPlannedField = document.getElementById("totalPlannedClasses");
+
+        const updateCourseDates = () => {
+            const months = Number(courseDuration.value);
+            if (!startDateField.value || ![3, 6, 12].includes(months)) return;
+            endDateField.value = addCourseMonths(startDateField.value, months);
+            endDateField.dataset.auto = "true";
+            totalPlannedField.value = getInitialTotalPlanned({
+                startDate: startDateField.value,
+                endDate: endDateField.value,
+                classesPerWeek: Number(document.getElementById("classesPerWeek").value) || 2
+            });
+            totalPlannedField.dataset.auto = "true";
+        };
+
+        courseDuration?.addEventListener("change", () => {
+            if (Number(courseDuration.value) === 0) {
+                endDateField.dataset.auto = "false";
+                return;
             }
+            updateCourseDates();
         });
 
-        document.getElementById("endDate")?.addEventListener("change", (event) => {
-            event.target.dataset.auto = "false";
+        startDateField?.addEventListener("change", () => {
+            if (Number(courseDuration.value) !== 0) updateCourseDates();
+        });
+
+        endDateField?.addEventListener("change", () => {
+            endDateField.dataset.auto = "false";
+            courseDuration.value = "0";
+        });
+
+        totalPlannedField?.addEventListener("input", () => {
+            totalPlannedField.dataset.auto = "false";
+        });
+
+        document.getElementById("classesPerWeek")?.addEventListener("change", () => {
+            if (totalPlannedField.dataset.auto === "true") {
+                totalPlannedField.value = getInitialTotalPlanned({
+                    startDate: startDateField.value,
+                    endDate: endDateField.value,
+                    classesPerWeek: Number(document.getElementById("classesPerWeek").value) || 2
+                });
+            }
         });
 
         document.getElementById("dateOfBirth")?.addEventListener("change", (event) => {
@@ -4097,7 +4158,11 @@
             loadSettingsForm();
             renderFeesHistory();
             setMonthlySummaryVisibility(state.monthlySummaryVisible, false);
-            state.currentCalendarDate = new Date();
+            const today = todayISO();
+            const calendarDate = today >= state.settings.startDate && today <= state.settings.endDate
+                ? dateObj(today)
+                : dateObj(state.settings.startDate);
+            state.currentCalendarDate = calendarDate;
             refreshAll();
             showView("dashboard");
         } catch (error) {
