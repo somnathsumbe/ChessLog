@@ -587,6 +587,20 @@
         }
 
 
+        /* WEEKLY COURSE PLAN */
+        .weekly-mascot{width:54px;height:54px;flex:0 0 54px;display:grid;place-items:center;border-radius:17px;background:#fff3cd;font-size:31px;box-shadow:inset 0 -3px 0 rgba(130,90,0,.08)}
+        .weekly-coach{display:flex;align-items:center;gap:12px;padding:13px 15px;margin-bottom:16px;border:1px solid #e5edf3;border-radius:14px;background:#f7fbff;color:#455a64;font-size:13px}
+        .weekly-coach-icon{font-size:23px;flex:0 0 auto}
+        .weekly-plan-table th,.weekly-plan-table td{white-space:nowrap;vertical-align:middle;padding:11px 13px}
+        .weekly-plan-table thead th{color:#78909c;background:#fafbfc;font-size:11px;text-transform:uppercase;letter-spacing:.03em}
+        .weekly-plan-table tbody tr.is-current>*{background:#fff9e8}
+        .weekly-plan-table tbody tr.is-current td:first-child{box-shadow:inset 3px 0 #ffc107}
+        .weekly-status{display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border-radius:999px;background:#eef2f4;color:#455a64;font-size:11px;font-weight:750}
+        .weekly-status.status-success{background:#e7f5ec;color:#17643b}
+        .weekly-status.status-warning{background:#fff3cd;color:#795600}
+        .weekly-status.status-info{background:#e8f3fb;color:#15577c}
+        @media(max-width:575.98px){.weekly-mascot{width:46px;height:46px;flex-basis:46px;font-size:27px}.weekly-plan-table th,.weekly-plan-table td{padding:9px 10px;font-size:12px}}
+
         /* =====================================================
            MONTH SUMMARY
         ===================================================== */
@@ -1220,6 +1234,26 @@
 
                     </div>
 
+                </div>
+
+                <div id="weeklyPlanCard" class="app-card mb-4">
+                    <div class="app-card-header flex-wrap">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="weekly-mascot" aria-hidden="true">🐴</div>
+                            <div><h3 class="app-card-title">Weekly Class Plan</h3><p id="weeklyPlanSummary" class="small text-muted mb-0 mt-1">Your weekly targets will appear here.</p></div>
+                        </div>
+                        <span class="badge text-bg-light border">Week by week</span>
+                    </div>
+                    <div class="app-card-body">
+                        <div id="weeklyPlanCoach" class="weekly-coach" aria-live="polite"><span class="weekly-coach-icon" aria-hidden="true">🌟</span><span>Every class counts. Your weekly target adjusts automatically as you complete classes.</span></div>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover mb-0 weekly-plan-table">
+                                <thead><tr><th>Week</th><th>Date Range</th><th>Base</th><th>Adjusted Target</th><th>Completed</th><th>Remaining</th><th>Status</th></tr></thead>
+                                <tbody id="weeklyPlanRows"></tbody>
+                            </table>
+                        </div>
+                        <p class="small text-muted mb-0 mt-3">A shortfall rolls into the next week. Extra completed classes reduce upcoming weekly targets. Future weeks change after the current week ends.</p>
+                    </div>
                 </div>
 
                 <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
@@ -2590,12 +2624,14 @@
     }
 
     function calculateCourseProgress() {
-        const totalPlanned = Number(state.settings?.totalPlannedClasses || 0);
-        const completed = state.records.filter((record) => record.status === "completed").length;
+        const totalPlanned = Math.max(0, Math.trunc(Number(state.settings?.totalPlannedClasses) || 0));
+        const startDate = state.settings?.startDate || "";
+        const endDate = state.settings?.endDate || "";
+        const completed = state.records.filter((record) =>
+            record.status === "completed" && record.classDate >= startDate && record.classDate <= endDate
+        ).length;
         const remaining = Math.max(totalPlanned - completed, 0);
-        const percentage = totalPlanned > 0
-            ? Math.min((completed / totalPlanned) * 100, 100)
-            : 0;
+        const percentage = totalPlanned > 0 ? Math.min((completed / totalPlanned) * 100, 100) : 0;
         return { totalPlanned, completed, remaining, percentage };
     }
 
@@ -2622,53 +2658,93 @@
         return months;
     }
 
-    function calculateBaseMonthlyPlan(settings = state.settings) {
-        const months = getCourseMonths(settings);
-        const totalPlanned = Math.max(0, Math.trunc(Number(settings?.totalPlannedClasses) || 0));
-        if (!months.length) return new Map();
-        const perMonth = Math.floor(totalPlanned / months.length);
-        const remainder = totalPlanned % months.length;
-        return new Map(months.map((month, index) => [month.key, perMonth + (index < remainder ? 1 : 0)]));
+    function calculateWeeklyPlan(asOf = todayISO()) {
+        if (!state.settings?.startDate || !state.settings?.endDate) return [];
+        const { startDate, endDate } = state.settings;
+        const totalWeeks = getCourseWeeksForSettings(state.settings);
+        if (!totalWeeks) return [];
+        const totalPlanned = Math.max(0, Math.trunc(Number(state.settings.totalPlannedClasses) || 0));
+        const completedByWeek = new Map();
+        const missedByWeek = new Map();
+
+        for (const record of state.records) {
+            if (!record?.classDate || record.classDate < startDate || record.classDate > endDate) continue;
+            const offset = daysBetween(startDate, record.classDate);
+            const index = Math.min(totalWeeks - 1, Math.max(0, Math.floor(offset / 7)));
+            if (record.status === "completed") completedByWeek.set(index, (completedByWeek.get(index) || 0) + 1);
+            else if (record.status === "missed") missedByWeek.set(index, (missedByWeek.get(index) || 0) + 1);
+        }
+
+        const weeks = [];
+        let carry = 0;
+        for (let index = 0; index < totalWeeks; index += 1) {
+            const weekStart = addDaysISO(startDate, index * 7);
+            const sixDaysLater = addDaysISO(weekStart, 6);
+            const weekEnd = index === totalWeeks - 1 || sixDaysLater > endDate ? endDate : sixDaysLater;
+            const basePlanned = Math.floor(((index + 1) * totalPlanned) / totalWeeks)
+                - Math.floor((index * totalPlanned) / totalWeeks);
+            const carryIn = carry;
+            const rawTarget = basePlanned + carryIn;
+            const planned = Math.max(0, rawTarget);
+            const completed = completedByWeek.get(index) || 0;
+            const missed = missedByWeek.get(index) || 0;
+            const periodStatus = asOf < weekStart ? "upcoming" : asOf > weekEnd ? "past" : "current";
+            const remaining = Math.max(0, planned - completed);
+            const ahead = Math.max(0, completed - planned);
+            const carryOut = periodStatus === "past" ? rawTarget - completed : carryIn;
+            let statusLabel = "Upcoming";
+            let statusClass = "status-info";
+            if (periodStatus === "current") {
+                statusLabel = ahead > 0 ? `Ahead by ${ahead}` : remaining === 0 ? "Target met" : "In progress";
+                statusClass = ahead > 0 || remaining === 0 ? "status-success" : "status-warning";
+            } else if (periodStatus === "past") {
+                statusLabel = carryOut > 0 ? `Carry +${carryOut}` : carryOut < 0 ? `Ahead ${Math.abs(carryOut)}` : "On track";
+                statusClass = carryOut > 0 ? "status-warning" : "status-success";
+            }
+            weeks.push({ index, number:index+1, startDate:weekStart, endDate:weekEnd, basePlanned, carryIn, planned, completed, missed, remaining, ahead, carryOut, periodStatus, statusLabel, statusClass });
+            // Only closed weeks roll their balance into the following week.
+            if (periodStatus === "past") carry = carryOut;
+        }
+        return weeks;
+    }
+
+    function addDaysISO(iso, days) {
+        const date = dateObj(iso);
+        date.setDate(date.getDate() + Number(days || 0));
+        return dateToISO(date);
+    }
+
+    function formatPlanAdjustment(value) {
+        const adjustment = Number(value) || 0;
+        if (adjustment > 0) return `+${adjustment} due`;
+        if (adjustment < 0) return `${Math.abs(adjustment)} ahead`;
+        return "—";
     }
 
     function calculateMonthlyPlan() {
         if (!state.settings) return [];
         if (state.monthlyBalancesCache) return state.monthlyBalancesCache;
-
-        const completedByMonth = new Map();
-        const missedByMonth = new Map();
-        for (const record of state.records) {
-            const key = getMonthKey(dateObj(record.classDate));
-            if (record.status === "completed") completedByMonth.set(key, (completedByMonth.get(key) || 0) + 1);
-            if (record.status === "missed") missedByMonth.set(key, (missedByMonth.get(key) || 0) + 1);
+        const monthMap = new Map(getCourseMonths().map((month) => [month.key, {
+            ...month, basePlanned:0, carryForward:0, planned:0, completed:0, missed:0, remaining:0, carryOut:0, weekCount:0
+        }]));
+        for (const week of calculateWeeklyPlan()) {
+            const key = week.startDate.slice(0, 7);
+            if (!monthMap.has(key)) {
+                const date = dateObj(week.startDate);
+                monthMap.set(key, { key, year:date.getFullYear(), month:date.getMonth(), basePlanned:0, carryForward:0, planned:0, completed:0, missed:0, remaining:0, carryOut:0, weekCount:0 });
+            }
+            const month = monthMap.get(key);
+            if (month.weekCount === 0) month.carryForward = week.carryIn;
+            month.basePlanned += week.basePlanned;
+            month.planned += week.planned;
+            month.completed += week.completed;
+            month.missed += week.missed;
+            month.remaining += week.remaining;
+            month.carryOut = week.carryOut;
+            month.weekCount += 1;
         }
-
-        const courseMonths = getCourseMonths();
-        const baseByMonth = calculateBaseMonthlyPlan();
-        const result = [];
-        let carry = 0;
-        for (const month of courseMonths) {
-            const basePlanned = baseByMonth.get(month.key) || 0;
-            const planned = basePlanned + carry;
-            const completed = completedByMonth.get(month.key) || 0;
-            const missed = missedByMonth.get(month.key) || 0;
-            const remaining = Math.max(0, planned - completed);
-            result.push({
-                ...month,
-                basePlanned,
-                carryForward: carry,
-                target: planned,
-                planned,
-                completed,
-                missed,
-                remaining,
-                carryOut: remaining
-            });
-            carry = remaining;
-        }
-
-        state.monthlyBalancesCache = result;
-        return result;
+        state.monthlyBalancesCache = [...monthMap.values()].sort((a,b) => a.key.localeCompare(b.key));
+        return state.monthlyBalancesCache;
     }
 
     function getMonthlyBalances() {
@@ -2792,7 +2868,6 @@
 
         const stats = calculateCourseProgress();
         const now = new Date();
-        const recovery = getMonthlyBalances().find((month) => month.year === now.getFullYear() && month.month === now.getMonth()) || null;
 
         document.getElementById("dashStudent").textContent = state.settings.studentName || "Chess Student";
         document.getElementById("dateRange").textContent = `Course: ${formatDate(state.settings.startDate)} → ${formatDate(state.settings.endDate)}`;
@@ -2819,24 +2894,56 @@
             summaryToggle.setAttribute("aria-expanded", String(state.monthlySummaryVisible));
         }
         if (state.monthlySummaryVisible) renderDashboardMonthlySummary();
+        renderDashboardWeeklyPlan();
 
         const recoveryBox = document.getElementById("recoveryBox");
-
-        if (recoveryBox && recovery && recovery.carryForward > 0) {
+        const currentWeek = calculateWeeklyPlan().find((week) => week.periodStatus === "current");
+        if (recoveryBox && currentWeek && currentWeek.carryIn > 0) {
             recoveryBox.className = "alert alert-warning";
-            recoveryBox.innerHTML = `
-                <strong>♻️ Recovery Required</strong><br>
-                ${recovery.carryForward} class(es) are carried forward from the previous month.
-                <br>
-                Try to attend <strong>${Number(state.settings.classesPerWeek) + 1} classes/week</strong> or more to catch up.
-            `;
+            recoveryBox.innerHTML = `<strong>♻️ Classes to catch up</strong><br>${currentWeek.carryIn} previous class(es) are included in this week's adjusted target of ${currentWeek.planned}. ${currentWeek.remaining > 0 ? `${currentWeek.remaining} class(es) are still remaining this week.` : ""}`;
+        } else if (recoveryBox && currentWeek && currentWeek.ahead > 0) {
+            recoveryBox.className = "alert alert-success";
+            recoveryBox.innerHTML = `<strong>🌟 Great progress!</strong><br>You are ahead by ${currentWeek.ahead} class(es). Upcoming weekly targets will be reduced when this week closes.`;
         } else if (recoveryBox) {
             recoveryBox.className = "alert alert-success";
-            recoveryBox.innerHTML = `
-                <strong>♟ On Track</strong><br>
-                No recovery classes are currently required.
-            `;
+            recoveryBox.innerHTML = `<strong>♟ On Track</strong><br>Your weekly class plan is up to date. Keep going!`;
         }
+    }
+
+    function renderDashboardWeeklyPlan() {
+        const body = document.getElementById("weeklyPlanRows");
+        const summary = document.getElementById("weeklyPlanSummary");
+        const coach = document.getElementById("weeklyPlanCoach");
+        if (!body || !state.settings) return;
+        const weeks = calculateWeeklyPlan();
+        const totalPlanned = Math.max(0, Math.trunc(Number(state.settings.totalPlannedClasses) || 0));
+        const completed = weeks.reduce((sum, week) => sum + week.completed, 0);
+        if (summary) summary.textContent = `${totalPlanned} planned classes · ${weeks.length} weeks · ${completed} completed`;
+        const current = weeks.find((week) => week.periodStatus === "current");
+        const next = weeks.find((week) => week.periodStatus === "upcoming");
+        if (coach) {
+            if (current && current.remaining > 0) coach.innerHTML = `<span class="weekly-coach-icon" aria-hidden="true">🎯</span><span><strong>This week's goal:</strong> ${current.remaining} more class(es) to meet the adjusted target of ${current.planned}. Any shortfall moves to next week.</span>`;
+            else if (current && current.ahead > 0) coach.innerHTML = `<span class="weekly-coach-icon" aria-hidden="true">🏆</span><span><strong>Fantastic work!</strong> You are ${current.ahead} class(es) ahead. The next weekly target will reduce after this week closes.</span>`;
+            else if (current) coach.innerHTML = `<span class="weekly-coach-icon" aria-hidden="true">⭐</span><span><strong>Weekly target achieved!</strong> Keep your rhythm going. Your next week's target is adjusted automatically.</span>`;
+            else if (next) coach.innerHTML = `<span class="weekly-coach-icon" aria-hidden="true">♟️</span><span><strong>Ready to begin!</strong> Week ${next.number} starts ${formatDate(next.startDate)} with a target of ${next.planned} class(es).</span>`;
+            else coach.innerHTML = `<span class="weekly-coach-icon" aria-hidden="true">🎉</span><span><strong>Course schedule finished.</strong> Review the remaining balance and attendance history below.</span>`;
+        }
+        const fragment = document.createDocumentFragment();
+        for (const week of weeks) {
+            const row = document.createElement("tr");
+            if (week.periodStatus === "current") row.classList.add("is-current");
+            row.innerHTML = `
+                <td class="fw-semibold">Week ${week.number}${week.periodStatus === "current" ? ' <span class="badge text-bg-warning">Now</span>' : ""}</td>
+                <td>${formatDate(week.startDate)} – ${formatDate(week.endDate)}</td>
+                <td>${week.basePlanned}</td>
+                <td class="fw-semibold">${week.planned}</td>
+                <td class="text-success fw-semibold">${week.completed}</td>
+                <td>${week.remaining > 0 ? `<span class="text-warning fw-semibold">${week.remaining}</span>` : "0"}${week.ahead > 0 ? ` <small class="text-success">(+${week.ahead} ahead)</small>` : ""}</td>
+                <td><span class="weekly-status ${week.statusClass}">${week.statusLabel}</span></td>
+            `;
+            fragment.appendChild(row);
+        }
+        body.replaceChildren(fragment);
     }
 
     function renderDashboardMonthlySummary() {
@@ -2848,7 +2955,7 @@
             row.innerHTML = `
                 <td>${getMonthLabel(month.key)}</td>
                 <td>${month.basePlanned}</td>
-                <td>${month.carryForward}</td>
+                <td>${formatPlanAdjustment(month.carryForward)}</td>
                 <td>${month.planned}</td>
                 <td class="text-success">${month.completed}</td>
                 <td>${month.remaining}</td>
@@ -2943,7 +3050,7 @@
         refs.monthSummary.innerHTML = `
             <div class="row g-2">
                 <div class="col-6 col-md-4 col-xl"><div class="summary-box"><small>Base Planned</small><strong>${item.basePlanned}</strong></div></div>
-                <div class="col-6 col-md-4 col-xl"><div class="summary-box"><small>Carry Forward</small><strong>${item.carryForward}</strong></div></div>
+                <div class="col-6 col-md-4 col-xl"><div class="summary-box"><small>Carry / Ahead</small><strong>${formatPlanAdjustment(item.carryForward)}</strong></div></div>
                 <div class="col-6 col-md-4 col-xl"><div class="summary-box"><small>Total Planned</small><strong>${item.planned}</strong></div></div>
                 <div class="col-6 col-md-4 col-xl"><div class="summary-box success-box"><small>Completed</small><strong>${item.completed}</strong></div></div>
                 <div class="col-6 col-md-4 col-xl"><div class="summary-box warning-box"><small>Remaining</small><strong>${item.remaining}</strong></div></div>
@@ -3451,7 +3558,6 @@
             state.feesHistory = await getAllFeesHistory();
             rebuildRecordsIndex();
             loadSettingsForm();
-            renderFeesHistory();
             renderFeesHistory();
             refreshAll();
             renderAttendanceReport();
