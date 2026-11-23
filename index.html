@@ -2422,7 +2422,7 @@
 
     function normalizeSettings(settings) {
         const normalized = { ...buildDefaultSettings(), ...settings, id: 1 };
-        normalized.studentName = String(normalized.studentName || "Shivansh Suman Sumbe");
+        normalized.studentName = String(normalized.studentName || "Shivansh Somnath Sumbe");
         normalized.academyName = String(normalized.academyName || "Kaizer Chess Academy");
         normalized.dateOfBirth = normalized.dateOfBirth || "2018-02-18";
         normalized.studentAge = String(calculateAge(normalized.dateOfBirth));
@@ -2534,7 +2534,7 @@
             return null;
         }
 
-        state.settings = {
+        const settings = {
             ...state.settings,
             id: 1,
             studentName: document.getElementById("studentName").value.trim(),
@@ -2554,7 +2554,7 @@
             ...fees
         };
 
-        return state.settings;
+        return settings;
     }
 
     function loadSettingsForm() {
@@ -2681,8 +2681,8 @@
             const weekStart = addDaysISO(startDate, index * 7);
             const sixDaysLater = addDaysISO(weekStart, 6);
             const weekEnd = index === totalWeeks - 1 || sixDaysLater > endDate ? endDate : sixDaysLater;
-            const basePlanned = Math.floor(((index + 1) * totalPlanned) / totalWeeks)
-                - Math.floor((index * totalPlanned) / totalWeeks);
+            const basePlanned = Math.round(((index + 1) * totalPlanned) / totalWeeks)
+                - Math.round((index * totalPlanned) / totalWeeks);
             const carryIn = carry;
             const rawTarget = basePlanned + carryIn;
             const planned = Math.max(0, rawTarget);
@@ -2867,7 +2867,6 @@
         if (!state.settings) return;
 
         const stats = calculateCourseProgress();
-        const now = new Date();
 
         document.getElementById("dashStudent").textContent = state.settings.studentName || "Chess Student";
         document.getElementById("dateRange").textContent = `Course: ${formatDate(state.settings.startDate)} → ${formatDate(state.settings.endDate)}`;
@@ -2898,9 +2897,9 @@
 
         const recoveryBox = document.getElementById("recoveryBox");
         const currentWeek = calculateWeeklyPlan().find((week) => week.periodStatus === "current");
-        if (recoveryBox && currentWeek && currentWeek.carryIn > 0) {
+        if (recoveryBox && currentWeek && currentWeek.remaining > 0) {
             recoveryBox.className = "alert alert-warning";
-            recoveryBox.innerHTML = `<strong>♻️ Classes to catch up</strong><br>${currentWeek.carryIn} previous class(es) are included in this week's adjusted target of ${currentWeek.planned}. ${currentWeek.remaining > 0 ? `${currentWeek.remaining} class(es) are still remaining this week.` : ""}`;
+            recoveryBox.innerHTML = `<strong>🎯 Weekly goal in progress</strong><br>${currentWeek.remaining} class(es) remaining this week. ${currentWeek.carryIn > 0 ? `${currentWeek.carryIn} previous class(es) are included in this week's target.` : "Keep going to complete this week's target."}`;
         } else if (recoveryBox && currentWeek && currentWeek.ahead > 0) {
             recoveryBox.className = "alert alert-success";
             recoveryBox.innerHTML = `<strong>🌟 Great progress!</strong><br>You are ahead by ${currentWeek.ahead} class(es). Upcoming weekly targets will be reduced when this week closes.`;
